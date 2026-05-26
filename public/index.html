@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>异世旅社 · 无限流</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d0b09; --panel:#16120e; --panel-2:#1d1813; --line:#2e2419;
+    --gold:#c9a558; --gold-dim:#8a7438; --paper:#e8dcc4; --paper-dim:#a99e88;
+    --blood:#7a2222; --hidden:#0a1622; --hidden-line:#1d3a55; --hidden-text:#5fb3d4; --hidden-glow:#3a8fb0;
+    --regr:#6b4a7a; --regr-line:#5a3d6a; --regr-text:#c79ad4;
+    --shadow:rgba(0,0,0,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{font-family:'Noto Serif SC',serif;
+    background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,165,88,.06), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 50% 110%, rgba(122,34,34,.05), transparent 60%),var(--ink);
+    color:var(--paper);height:100vh;overflow:hidden;position:relative}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .topbar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),var(--panel));position:relative;z-index:20}
+  .brand{display:flex;align-items:baseline;gap:11px}
+  .brand .logo{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--gold);letter-spacing:.5px}
+  .brand .sep{color:var(--gold-dim);font-size:12px}.brand .case{font-size:13px;color:var(--paper-dim);letter-spacing:3px}
+  .topmeta{display:flex;align-items:center;gap:20px;font-size:12.5px}
+  .topmeta .clock{font-family:'JetBrains Mono',monospace;color:var(--gold);letter-spacing:1px}
+  .topmeta .round{color:var(--paper-dim)}
+  .topmeta .mode-badge{font-size:10.5px;letter-spacing:2px;color:var(--ink);background:var(--gold);padding:3px 9px;border-radius:2px;font-weight:600}
+
+  .stage{height:calc(100vh - 50px);display:grid;grid-template-columns:248px 1fr 272px;gap:1px;background:var(--line)}
+  .col{background:var(--ink);overflow-y:auto;height:100%}
+  .col::-webkit-scrollbar{width:7px}.col::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+  .panel{margin:13px 11px;border:1px solid var(--line);border-radius:5px;background:linear-gradient(180deg,var(--panel-2),var(--panel));overflow:hidden}
+  .panel.clickable{cursor:pointer;transition:.2s}.panel.clickable:hover{border-color:var(--gold-dim)}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--line);background:rgba(201,165,88,.04)}
+  .panel-head h3{font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .panel-head .cn{font-size:10.5px;color:var(--paper-dim);letter-spacing:1px}
+  .panel-head .badge{font-size:8.5px;color:var(--blood);letter-spacing:1px;border:1px solid var(--blood);padding:1px 5px;border-radius:8px}
+  .panel-body{padding:12px}
+  .col-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11.5px;letter-spacing:2px;color:var(--gold-dim);padding:15px 15px 0;text-transform:uppercase}
+
+  .profile{display:flex;gap:11px;align-items:center}
+  .avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);border:1.5px solid var(--gold-dim);background:radial-gradient(circle at 35% 30%,#3a4d63,#16202b)}
+  .avatar.npc{background:radial-gradient(circle at 35% 30%,#4a3a2a,#1e160e);border-color:var(--gold-dim);width:36px;height:36px;font-size:15px}
+  .avatar.regr{background:radial-gradient(circle at 35% 30%,#4a2f5a,#1c1322);border-color:var(--regr-line);width:36px;height:36px;font-size:15px;color:var(--regr-text)}
+  .profile .name{font-size:14px;font-weight:600;color:var(--paper)}.profile .tag{font-size:10.5px;color:var(--paper-dim);margin-top:2px}
+
+  .quest-text{font-size:12.5px;line-height:1.7;color:var(--paper)}.quest-text .em{color:var(--gold);font-weight:500}
+  .stat-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px dotted var(--line)}
+  .stat-row:last-child{border-bottom:none}.stat-row .k{color:var(--paper-dim)}.stat-row .v{color:var(--paper);text-align:right;max-width:62%}
+  .stat-row .v.warn{color:var(--blood)}
+
+  .inv-grid{display:flex;flex-direction:column;gap:6px}
+  /* ---- 场景可交互物件 ---- */
+  .scene-obj{cursor:pointer;color:#cfb87a;border-bottom:1px dashed transparent;transition:.25s}
+  .scene-obj:hover{color:var(--gold);border-bottom-color:var(--gold);text-shadow:0 0 12px rgba(201,165,88,.25)}
+
+  /* ---- location panel ---- */
+  .loc-room{font-size:14px;font-weight:600;color:var(--gold);margin-bottom:3px;display:flex;align-items:center;gap:7px}
+  .loc-room .loc-icon{font-size:16px}
+  .loc-desc{font-size:11px;line-height:1.6;color:var(--paper-dim);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .loc-exits{display:flex;flex-direction:column;gap:5px;margin-bottom:6px}
+  .loc-exit{display:flex;align-items:center;justify-content:space-between;font-family:'Noto Serif SC',serif;font-size:11px;padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--gold);cursor:pointer;transition:.22s;letter-spacing:.5px}
+  .loc-exit:hover{border-color:var(--gold);background:var(--panel-2);transform:translateX(2px)}
+  .loc-exit .arrow{color:var(--gold-dim);font-family:'Cormorant Garamond',serif;font-size:13px}
+  .loc-hint{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:10px;color:var(--paper-dim);font-style:italic;line-height:1.5;opacity:.75}
+  .loc-hint span{color:var(--gold-dim);font-weight:500}
+
+  .clue-list{display:flex;flex-direction:column;gap:7px}
+  .clue-item{font-size:11.5px;line-height:1.5;color:var(--paper);padding:7px 9px;border-radius:4px;background:rgba(201,165,88,.05);border-left:2px solid var(--gold-dim)}
+  .clue-item .ct{color:var(--gold);font-size:10px;display:block;margin-bottom:2px}
+
+  .npc-item{display:flex;gap:9px;align-items:center;margin-bottom:6px;padding:6px 8px;border-radius:5px;cursor:pointer;transition:.2s;border:1px solid transparent}
+  .npc-item:hover{background:rgba(255,255,255,.02);border-color:var(--line)}
+  .npc-item.active{background:rgba(201,165,88,.08);border-color:var(--gold-dim)}
+  .npc-item.absent{opacity:.35;cursor:default;filter:grayscale(.4)}
+  .npc-item.absent:hover{background:transparent;border-color:transparent}
+  .npc-item .name{font-size:12.5px;font-weight:600}
+  .npc-item .tag{font-size:9.5px;color:var(--paper-dim);margin-top:1px}
+  .npc-item .loc-tag{font-size:9px;color:var(--gold-dim);margin-top:1px;font-style:italic}
+  .npc-item .talk-flag{margin-left:auto;font-size:8.5px;color:var(--gold);letter-spacing:1px;opacity:0;transition:.2s}
+  .npc-item.active .talk-flag{opacity:1}
+  .npc-item.absent .talk-flag{display:none}
+  .npc-sec{font-size:9.5px;letter-spacing:1.5px;color:var(--gold-dim);margin:8px 0 5px;text-transform:uppercase}
+  .npc-sec:first-child{margin-top:0}
+  .npc-count{font-size:10px;color:var(--paper-dim);margin-top:4px;font-style:italic;opacity:.6}
+  .env-line{font-size:12px;line-height:1.75;color:var(--paper);font-style:italic}
+
+  .dock{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:13px 11px 18px}
+  .dock button{font-family:'Noto Serif SC',serif;font-size:11px;letter-spacing:.5px;padding:9px 4px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--paper-dim);cursor:pointer;transition:.2s}
+  .dock button:hover{border-color:var(--gold-dim);color:var(--gold);background:var(--panel-2)}
+  .dock button.wide{grid-column:1/3}.dock button.danger{border-color:var(--blood);color:#c87a7a}
+
+  .center{display:flex;flex-direction:column;height:100%;background:radial-gradient(ellipse 70% 55% at 50% 35%, rgba(201,165,88,.04), transparent 70%),var(--ink)}
+  .flow{flex:1;overflow-y:auto;padding:20px 28px 12px;display:flex;flex-direction:column;gap:15px}
+  .flow::-webkit-scrollbar{width:7px}.flow::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+  .world{align-self:center;max-width:92%;text-align:center;position:relative;padding:14px 26px;margin:3px 0;background:linear-gradient(180deg,rgba(29,24,19,.9),rgba(22,18,14,.9));border-top:1px solid var(--line);border-bottom:1px solid var(--line);box-shadow:inset 0 0 40px rgba(0,0,0,.4)}
+  .world::before,.world::after{content:"❧";position:absolute;top:50%;transform:translateY(-50%);color:var(--gold-dim);font-size:13px;opacity:.6}
+  .world::before{left:9px}.world::after{right:9px;transform:translateY(-50%) scaleX(-1)}
+  .world .wlabel{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:9.5px;letter-spacing:3px;color:var(--gold-dim);text-transform:uppercase;display:block;margin-bottom:6px}
+  .world p{font-size:13.5px;line-height:1.95;color:#d9ccad}
+  .ambient{align-self:center;max-width:80%;text-align:center;font-size:12px;font-style:italic;color:var(--paper-dim);opacity:.8;padding:2px 0}
+  .ambient::before{content:"· · ·";display:block;color:var(--gold-dim);opacity:.5;margin-bottom:4px;letter-spacing:4px}
+
+  .msg{max-width:76%;display:flex;flex-direction:column;gap:4px}
+  .msg.me{align-self:flex-end;align-items:flex-end}
+  .msg.npc,.msg.regr{align-self:flex-start;align-items:flex-start}
+  .msg .who{font-size:10px;letter-spacing:1px;color:var(--paper-dim);padding:0 4px;display:flex;align-items:center;gap:5px}
+  .msg .who .role-dot{width:6px;height:6px;border-radius:50%}
+  .bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.7}
+  .msg.me .bubble{background:linear-gradient(135deg,#2a3340,#1d2530);border:1px solid #34414f;border-bottom-right-radius:3px;color:#d6e2ee}
+  .msg.npc .bubble{background:linear-gradient(135deg,#2d2418,#211a10);border:1px solid #3d3120;border-bottom-left-radius:3px;color:#e3d4b6}
+  .msg.regr .bubble{background:linear-gradient(135deg,#2c2138,#1a1322);border:1px solid #4a3d5a;border-bottom-left-radius:3px;color:#dcc8e8}
+  .bubble-wrap{position:relative;display:flex;align-items:flex-start;gap:4px}
+  .bubble-wrap .pin-btn{flex-shrink:0;font-size:10px;padding:3px 5px;border-radius:3px;cursor:pointer;opacity:0;transition:.2s;color:var(--paper-dim);border:1px solid transparent;background:transparent;align-self:flex-start;margin-top:2px}
+  .bubble-wrap:hover .pin-btn{opacity:1}
+  .bubble-wrap .pin-btn:hover{color:var(--gold);border-color:var(--gold-dim);background:rgba(201,165,88,.12)}
+  .bubble-wrap .pin-btn.pinned{opacity:1;color:var(--gold);border-color:var(--gold-dim)}
+
+  .private{align-self:flex-end;max-width:78%;background:var(--hidden);border:1px dashed var(--hidden-line);border-radius:8px;padding:10px 13px;position:relative;box-shadow:0 0 22px rgba(58,143,176,.07)}
+  .private .ptag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--hidden-glow);display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .private .ptag::before{content:"◢";font-size:8px}
+  .private p{font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.7;color:var(--hidden-text)}
+  .private .clue{margin-top:7px;padding-top:7px;border-top:1px dashed var(--hidden-line);font-size:10.5px;color:var(--gold);font-family:'Noto Serif SC',serif}
+  .private .clue::before{content:"✦ 线索解锁 · ";color:var(--gold-dim);font-size:9.5px}
+
+  .thinking{align-self:flex-start;display:flex;align-items:center;gap:9px;padding:8px 14px;color:var(--paper-dim);font-size:12px;font-style:italic}
+  .thinking .dots{display:inline-flex;gap:3px}
+  .thinking .dots span{width:5px;height:5px;border-radius:50%;background:var(--gold-dim);animation:bounce 1.2s infinite}
+  .thinking .dots span:nth-child(2){animation-delay:.2s}.thinking .dots span:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+  .inputzone{border-top:1px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--panel-2));padding:10px 28px 14px;position:relative}
+  .talk-target{font-size:11px;color:var(--paper-dim);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .talk-target b{color:var(--gold)}
+  .channel-tabs{display:flex;gap:7px;margin-bottom:9px}
+  .ch-tab{font-family:'Noto Serif SC',serif;font-size:11.5px;letter-spacing:1px;padding:6px 15px;border-radius:4px 4px 0 0;cursor:pointer;transition:.22s;border:1px solid transparent;border-bottom:none;display:flex;align-items:center;gap:7px}
+  .ch-tab .dot{width:7px;height:7px;border-radius:50%}
+  .ch-tab.public{color:var(--gold)}.ch-tab.public .dot{background:var(--gold)}
+  .ch-tab.public.active{background:rgba(201,165,88,.1);border-color:var(--gold-dim)}
+  .ch-tab.hidden{color:var(--hidden-text)}.ch-tab.hidden .dot{background:var(--hidden-glow)}
+  .ch-tab.hidden.active{background:var(--hidden);border-color:var(--hidden-line)}
+  .ch-tab:not(.active){opacity:.5}
+  .inputfield{position:relative;transition:.3s}
+  .inputfield textarea{width:100%;resize:none;height:50px;border-radius:6px;padding:11px 110px 11px 14px;font-family:'Noto Serif SC',serif;font-size:13px;line-height:1.6;transition:.3s}
+  .inputfield.public textarea{background:#100d0a;border:1px solid var(--line);color:var(--paper)}
+  .inputfield.public textarea:focus{outline:none;border-color:var(--gold-dim);box-shadow:0 0 0 3px rgba(201,165,88,.08)}
+  .inputfield.public textarea::placeholder{color:#6b6151}
+  .inputfield.hidden textarea{background:var(--hidden);border:1px solid var(--hidden-line);color:var(--hidden-text);font-family:'JetBrains Mono',monospace;font-size:12px;box-shadow:inset 0 0 30px rgba(58,143,176,.06)}
+  .inputfield.hidden textarea:focus{outline:none;border-color:var(--hidden-glow);box-shadow:0 0 0 3px rgba(58,143,176,.12),inset 0 0 30px rgba(58,143,176,.08)}
+  .inputfield.hidden textarea::placeholder{color:#3a6478}
+  .send-btn{position:absolute;right:8px;bottom:8px;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:1px;padding:8px 16px;border:none;border-radius:5px;cursor:pointer;transition:.2s;font-weight:600}
+  .inputfield.public .send-btn{background:var(--gold);color:var(--ink)}.inputfield.public .send-btn:hover{background:#dcb869}
+  .inputfield.hidden .send-btn{background:var(--hidden-glow);color:var(--ink)}.inputfield.hidden .send-btn:hover{background:#4ba8cc}
+  .send-btn:disabled{opacity:.4;cursor:not-allowed}
+  .dual-hint{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:10.5px;color:var(--paper-dim)}
+  .dual-hint .pill{font-size:9.5px;padding:3px 9px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;gap:5px}
+  .dual-hint .pill.has{border-color:var(--hidden-line);color:var(--hidden-text);background:var(--hidden)}
+  .dual-hint .pill .x{cursor:pointer;color:var(--paper-dim)}.dual-hint .pill .x:hover{color:var(--blood)}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(5,4,3,.82);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
+  .modal-bg.open{display:flex;animation:fade .3s}@keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{width:min(540px,92vw);max-height:82vh;overflow-y:auto;background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--gold-dim);border-radius:8px;box-shadow:0 30px 80px var(--shadow);animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+  .modal-head{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .modal-head h2{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--gold);letter-spacing:1px;font-weight:600}
+  .modal-head .close{background:none;border:none;color:var(--paper-dim);font-size:21px;cursor:pointer;line-height:1}.modal-head .close:hover{color:var(--blood)}
+  .modal-body{padding:20px 22px}.modal-body p{font-size:13px;line-height:1.8;color:var(--paper);margin-bottom:12px}
+  .modal-body .field{margin-bottom:14px}
+  .modal-body .field .lbl{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11.5px;letter-spacing:2px;color:var(--gold-dim);text-transform:uppercase;display:block;margin-bottom:4px}
+  .modal-body .field .val{font-size:13px;line-height:1.7;color:var(--paper)}
+  .reveal-card{border:1px solid var(--blood);border-radius:6px;padding:13px 15px;margin-bottom:13px;background:rgba(122,34,34,.06)}
+  .reveal-card .rc-title{font-size:11.5px;letter-spacing:2px;color:var(--blood);text-transform:uppercase;margin-bottom:7px;font-family:'Cormorant Garamond',serif;font-style:italic}
+
+  .hint-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--gold-dim);border-radius:6px;padding:10px 34px 10px 18px;font-size:12px;color:var(--gold);z-index:2000;opacity:0;transition:.4s;box-shadow:0 12px 40px var(--shadow);pointer-events:auto;max-width:80%;text-align:center;cursor:pointer}
+  .hint-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hint-toast .toast-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--paper-dim);opacity:.6;line-height:1}
+
+  .overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,rgba(201,165,88,.07),transparent 60%),var(--ink)}
+  .overlay.dungeon-enter{background:radial-gradient(ellipse at 50% 40%,rgba(122,34,34,.1),transparent 60%),#0a0806}
+  .ov-card{width:min(560px,92vw);padding:10px 36px;text-align:center}
+  .ov-logo{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:46px;color:var(--gold);line-height:1.1}
+  .ov-sub{font-size:13px;color:var(--paper-dim);letter-spacing:3px;margin-top:6px}
+  .ov-narr{font-size:14px;line-height:1.95;color:#d9ccad;text-align:left;margin:24px 0;min-height:40px}
+  .ov-narr .em{color:var(--gold);font-style:italic}
+  .ov-q{font-size:13px;color:var(--paper);margin:18px 0 9px;text-align:left}
+  .ov-card input[type=text]{width:100%;padding:11px 14px;border-radius:6px;background:#100d0a;border:1px solid var(--line);color:var(--paper);font-family:'Noto Serif SC',serif;font-size:14px}
+  .ov-card input[type=text]:focus{outline:none;border-color:var(--gold-dim)}
+  .ov-btn{margin-top:24px;width:100%;padding:13px;border:none;border-radius:6px;background:var(--gold);color:var(--ink);font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:.2s}
+  .ov-btn:hover{background:#dcb869}.ov-btn:disabled{opacity:.4;cursor:not-allowed}
+  .ov-note{font-size:10.5px;color:var(--paper-dim);margin-top:14px;line-height:1.6;opacity:.7}
+  .door-row{display:flex;gap:12px;margin-top:18px}
+  .door{flex:1;padding:20px 12px;border-radius:8px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),var(--panel));cursor:pointer;transition:.25s;text-align:center}
+  .door:hover{border-color:var(--gold);transform:translateY(-3px)}
+  .door.locked{opacity:.4;cursor:not-allowed}.door.locked:hover{transform:none;border-color:var(--line)}
+  .door .dn{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);margin-bottom:5px}
+  .door .dd{font-size:11px;color:var(--paper-dim);line-height:1.5}
+  .door .dlock{font-size:10px;color:var(--paper-dim);margin-top:6px;letter-spacing:1px}
+  .fade-in{animation:fadeIn .8s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- PROLOGUE -->
+<div class="overlay" id="prologue">
+  <div class="ov-card">
+    <div class="ov-logo">异世旅社</div>
+    <div class="ov-sub">T H E   L I M I N A L   I N N</div>
+    <div class="ov-narr" id="proNarr"></div>
+    <div id="proStep1" style="display:none">
+      <div class="ov-q">在被卷走之前，你最后报出了自己的名字——</div>
+      <input type="text" id="heroName" placeholder="你的名字……" maxlength="12" value="霍尔特">
+      <button class="ov-btn" id="proNext">推开那扇门 →</button>
+      <div class="ov-note">这是一个由 AI 实时驱动的无限流 demo。你将独自闯入副本。副本里所有活着的角色——土著与其他轮回者——都由 AI 扮演，它们只知道自己该知道的，不会作弊。</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOSTEL -->
+<div class="overlay" id="hostel" style="display:none">
+  <div class="ov-card">
+    <div class="ov-logo" style="font-size:38px">异世旅社 · 大堂</div>
+    <div class="ov-sub">T H E   L O B B Y</div>
+    <div class="ov-narr" id="hostelNarr"></div>
+    <div id="doorArea" style="display:none">
+      <div class="door-row">
+        <div class="door" id="door1" onclick="enterDungeon('snowbound_manor')">
+          <div class="dn">壹号门</div><div class="dd">门缝里渗出刺骨寒风<br>与暴雪的嘶吼……</div><div class="dlock">◆ 可进入</div>
+        </div>
+        <div class="door" id="door2" onclick="enterDungeon('lantern_ashes')">
+          <div class="dn">贰号门</div><div class="dd">冷雾与檀香，还有女人<br>压着嗓子的哭声……</div><div class="dlock">◆ 可进入</div>
+        </div>
+      </div>
+      <div class="ov-note">提示：每扇门是一个独立的平行世界副本。你将孤身一人进入，活着通关，门会再次开启。</div>
+    </div>
+  </div>
+</div>
+
+<!-- DUNGEON ENTER FLASH -->
+<div class="overlay dungeon-enter" id="dungeonEnter" style="display:none">
+  <div class="ov-card"><div class="ov-narr" id="enterNarr" style="text-align:center;font-size:15px"></div></div>
+</div>
+
+<!-- GAME -->
+<div class="topbar">
+  <div class="brand"><span class="logo">异世旅社</span><span class="sep">·</span><span class="case" id="dungeonName">暴 风 雪 山 庄</span></div>
+  <div class="topmeta"><span class="mode-badge" id="modeBadge">副本 · 推理</span><span class="round">第 <b id="roundN">1</b> 轮</span><span class="clock" id="clock">庄园时间 08:30</span></div>
+</div>
+
+<div class="stage">
+  <!-- LEFT -->
+  <div class="col">
+    <div class="col-label">我 · 孤身的轮回者</div>
+    <div class="panel">
+      <div class="panel-head"><h3>You</h3><span class="cn">轮回者</span></div>
+      <div class="panel-body"><div class="profile"><div class="avatar" id="heroAvatar">霍</div><div><div class="name" id="heroNameDisp">霍尔特</div><div class="tag">独自闯入副本 · 异乡人</div></div></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Quest</h3><span class="cn">通关目标</span></div>
+      <div class="panel-body"><div class="quest-text" id="questText"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Location</h3><span class="cn">当前位置</span></div>
+      <div class="panel-body" id="locationPanel"></div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="col center">
+    <div class="flow" id="flow"></div>
+    <div class="inputzone">
+      <div class="talk-target" id="talkTarget">▸ 正在对：<b id="talkName">全场</b> 说话（在右侧点选一个对象，或对全场发言）</div>
+      <div class="channel-tabs">
+        <div class="ch-tab public active" id="tabPublic" onclick="switchCh('public')"><span class="dot"></span>公开频道</div>
+        <div class="ch-tab hidden" id="tabHidden" onclick="switchCh('hidden')"><span class="dot"></span>隐藏频道</div>
+      </div>
+      <div class="inputfield public" id="field">
+        <textarea id="ta" placeholder="你说的话、你做的动作——在场所有人都能看见。"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="send()">发送 →</button>
+      </div>
+      <div class="dual-hint"><span>移动：点击左侧出口按钮，或在公开频道描述你要去哪儿。</span></div>
+      <div class="dual-hint"><span>双轨并行 ·</span><span class="pill has" id="stagedPill" style="display:none"><span style="color:var(--hidden-glow)">◢</span>已暂存隐藏动作 <span class="x" onclick="clearStaged()">✕</span></span><span id="dualTip">隐藏频道里做的事，土著看不见——但别的轮回者，未必看不见</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="col">
+    <div class="col-label">外界 · 在场角色与线索</div>
+    <div class="panel">
+      <div class="panel-head"><h3>Present</h3><span class="cn">在场角色 · 点选问话</span></div>
+      <div class="panel-body" id="npcList"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Clues</h3><span class="cn">已得线索</span></div>
+      <div class="panel-body"><div class="clue-list" id="clueList"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Scene</h3><span class="cn">此地此景</span></div>
+      <div class="panel-body"><div class="env-line" id="sceneDesc"></div></div>
+    </div>
+    <div class="dock">
+      <button onclick="openModal('rule')">规则</button>
+      <button onclick="openModal('case')">案情</button>
+      <button class="wide danger" id="settleBtn" onclick="triggerSettle()">⚖ 指认凶手 · 尝试通关</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalBox"></div></div>
+<div class="hint-toast" id="toast"></div>
+
+<script>
+async function callClaude(system,userContent,maxTokens=600){
+  try{
+    const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({system,messages:[{role:"user",content:userContent}],max_tokens:maxTokens})});
+    const data=await res.json();
+    if(data.error){console.error("[API]",data.error);return data.error;}
+    return data.text||"";
+  }catch(e){console.error("[API]",e);return"";}
+}
+function parseJSON(t){t=t.replace(/```json/gi,"").replace(/```/g,"").trim();const s=t.indexOf("{"),e=t.lastIndexOf("}");if(s>=0&&e>=0)t=t.slice(s,e+1);return JSON.parse(t);}
+
+/* ===== 剧本数据 —— 从服务端加载，不再硬编码 ===== */
+let ROOMS={};let DUNGEON={};let dungeonLoaded=false;let currentDungeonId='snowbound_manor';
+async function loadDungeon(id){
+  id=id||'snowbound_manor';
+  try{
+    const res=await fetch("/api/dungeon?id="+id);const data=await res.json();
+    ROOMS=data.rooms;DUNGEON=data.dungeon;dungeonLoaded=true;currentDungeonId=id;
+    console.log("✓ 剧本已加载：",data.name,"—",Object.keys(ROOMS).length,"个场景，",Object.keys(DUNGEON.npcs).length,"个角色");
+  }catch(e){console.error("剧本加载失败",e);}
+}
+// 页面打开即开始加载，不阻塞序章动画
+loadDungeon();
+
+/* ===== GAME STATE ===== */
+const GAME={hero:"霍尔特",round:1,timeMin:8*60+30,history:[],cluesFound:[],
+  talkTo:"全场",busy:false,cleared:false,
+  failCount:0, keyClueThreshold:3,
+  trust:{"陌生旅人·K":0,"戴面纱的薇":0,"少年·阿七":0},
+  currentRoom:"书房",
+  npcRooms:{
+    "爱德华兹管家":"书房","女仆玛莎":"厨房","厨师博比":"厨房",
+    "园丁老汤姆":"庭院","陌生旅人·K":"书房","戴面纱的薇":"书房","少年·阿七":"书房"
+  },
+  moveLog:[], butlerLeft:false
+};
+
+function transcript(n=10){return GAME.history.slice(-n).map(h=>`[${h.who}] ${h.text}`).join("\n")||"（刚进入副本）";}
+function presentNPCs(){return Object.entries(GAME.npcRooms).filter(([,r])=>r===GAME.currentRoom).map(([k])=>k);}
+function resolveAccused(name){
+  const keys=Object.keys(DUNGEON.npcs||{});
+  // 完全匹配
+  if(keys.includes(name))return name;
+  // NPC 全名包含玩家说的短名（"管家"→"爱德华兹管家"）
+  for(const k of keys){if(k.includes(name))return k;}
+  // 玩家说的名字包含 NPC 短名（"K"→"陌生旅人·K"）
+  for(const k of keys){const n=DUNGEON.npcs[k];if(n.short&&name.includes(n.short))return k;}
+  return null;
+}
+
+/* ===== MODULE 1: HIDDEN JUDGMENT ===== */
+async function hiddenJudgment(actorName,action){
+  const room=ROOMS[GAME.currentRoom];
+  const roomClueText=room.clues.length
+    ? `【当前房间可发现的线索】\n${room.clues.map(c=>"· "+c).join("\n")}\n【可搜查的地方】${room.hint}`
+    : `【当前房间】${room.name}。注意：这个房间似乎没有直接与案件相关的物证，但不等于搜查毫无价值——人物对话线索、间接推论依然可能在此产生。`;
+  const sys=`你是纯粹客观的【场景裁判】，服务于无限流剧本杀副本。只判定"隐藏行动"是否可行、留不留痕、有何后果。绝不替玩家决定，只输出 JSON。
+【完整真相（仅你可见，绝不泄露）】${DUNGEON.truth}
+关键可发现线索总表：
+${DUNGEON.clues.map((c,i)=>`(${i+1}) ${c}`).join("\n")}
+【玩家所在房间】${room.name}：${room.desc}
+${roomClueText}
+【当前场景】${DUNGEON.scene}
+【在场角色】${presentNPCs().join("、")||"（此处目前无人）"}
+【玩家已发现线索】${GAME.cluesFound.join("；")||"（暂无）"}
+规则：物理不可能→fail；可行不留痕→full；可行但留痕→partial。无论搜查到的是关键证据还是无关紧要的东西，clue 字段必须详细描述玩家发现了什么——比如翻开抽屉看到的内容、摸到的东西、注意到的细节。如果是本案关键线索（匹配清单），自然要记；如果搜到的东西和案件无关（比如一本旧书、一封家信、一张购物单），更要如实地描述出来——玩家需要知道这些平凡之物里没有破案所需的东西。但请严格按房间判定物理位置：遗嘱在书房，牛奶杯/手套在厨房，锅炉记录在地下室，烟囱观察在庭院。partial 时 penetration 写一句混入公共叙事、在场角色也能模糊感知的环境描写(绝不点明谁做了什么)；full/fail 时 penetration 为 null。
+输出 JSON：{"feasibility":"full|partial|fail","feedback":"只给行动者看的第一人称结果,60字内","penetration":"或null","clue":"无论是否关键线索，描述搜查所发现的内容,60字内。若确实什么都没发现则为空字符串"}`;
+  try{return parseJSON(await callClaude(sys,`行动者：${actorName}（玩家，暗中行动）\n所在房间：${room.name}\n隐藏行动：${action}\n输出JSON。`,600));}
+  catch(e){return {feasibility:"partial",feedback:"你悄悄做了这件事，似乎没太引人注意。",penetration:"屋里某处传来一点说不清来源的细微声响。",clue:null};}
+}
+
+/* ===== NPC / REGRESSOR PERFORMANCE ===== */
+async function npcResponse(npcKey,situation){
+  const n=DUNGEON.npcs[npcKey];let role;
+  const npcRoom=GAME.npcRooms[npcKey]||"书房";
+  const roomInfo=npcRoom===GAME.currentRoom
+    ? `你此刻就在${GAME.currentRoom}，和主角在同一个房间里。`
+    : `你此刻在${npcRoom}，主角在${GAME.currentRoom}——你们不在同一个房间。若主角隔着房间对你喊话，你按物理逻辑回应（听不清、隔着墙等）；除非主角来到了你所在的房间。`;
+  const commonSense = n.regressor
+    ? `【你当然知道的常识】这里是一座被暴风雪困住的维多利亚式庄园(暴风雪山庄)，昨夜庄园主伯爵死在卧房，所有人被大雪困住、无法离开。你作为轮回者，也清楚你们都是被卷进这个"副本/世界"的异乡人。这些常识性的事，被问到时要正常回答，不要装不知道。`
+    : `【你当然知道的常识】你是这座庄园里的人。这里是伯爵的山庄(在偏远的北境，被暴风雪封住了路)，昨夜老爷(伯爵)死在卧房，警察来不了，大家都被困住。这些everyday的常识，被问到"这是什么地方""死了谁""怎么回事"时，要按你的身份正常、自然地回答，绝不能答"说不清楚/不知道"——你在这儿住/做工，怎么会不知道这是哪儿。只有涉及命案真相的秘密(谁是凶手、作案手法等)才需要按下面的处境隐瞒。`;
+  if(n.regressor){
+    const t=GAME.trust[npcKey]||0;
+    role=`你在无限流副本里扮演"${n.key}"——和主角一样的轮回者(异乡人)。绝不出戏，不提AI/系统/剧本。
+【你的位置】${roomInfo}
+【人设】${n.persona}
+${commonSense}
+【你额外知道的(案件相关，只知道这些)】${n.knows}
+【当前主角对你的态度】${t}(负=在防你,正=在亲近你)。态度越好你越愿透露真东西，但始终留一手。`;
+  }else if(n.guilty){
+    role=`你在剧本杀副本里扮演 NPC：${n.key}(土著)。绝不出戏，不提AI/系统/剧本。
+【你的位置】${roomInfo}
+【人设】${n.persona}
+${commonSense}
+【你额外知道的(只知道这些)】${n.knows}
+【处境】你是凶手但绝不承认。被问到痛处(遗嘱/锅炉/牛奶/争吵)可露符合人设的细微破绽，但不主动招供。注意：普通的环境/常识问题要正常答，只有命案秘密才隐瞒。`;
+  }else{
+    role=`你在剧本杀副本里扮演 NPC：${n.key}(土著)。绝不出戏，不提AI/系统/剧本。
+【你的位置】${roomInfo}
+【人设】${n.persona}
+${commonSense}
+【你额外知道的(只知道这些)】${n.knows}
+【处境】你是无辜的。普通问题正常答；按人设、在被恰当询问时，才会透露你知道的关键线索。`;
+  }
+  const sys=`${role}\n\n【当前场景】${DUNGEON.scene}\n【最近对话】\n${transcript(8)}\n\n只输出你此刻说的话/动作(第三人称动作可用括号)，自然简短符合人设，80字内。不要解释或JSON。`;
+  try{return await callClaude(sys,`刚刚发生：${situation}\n请以 ${n.key} 的身份回应。`,300);}
+  catch(e){return n.guilty?"管家恭敬地欠身：「先生，老奴实在不清楚。」":n.regressor?"对方意味深长地看了你一眼，没有立刻回答。":"对方迟疑了一下，没怎么说话。";}
+}
+
+/* ===== MODULE 3: PUBLIC NARRATION ===== */
+async function publicNarration(actions,penetrations,moves){
+  const room=ROOMS[GAME.currentRoom];
+  let moveText='';
+  if(moves&&moves.length){moveText=`\n【本轮角色移动】（自然融入场景描写，当成脚步声/身影/门开合来写，不列清单）:\n${moves.map(m=>"· "+m).join("\n")}`;}
+  const sys=`你是客观的【叙事摄像机】，服务于无限流副本(暴风雪山庄,推理风)。只描写发生的事，第三人称客观，绝不揣测动机、不用暗示性副词、不评判、不泄露私密信息。多用环境细节(光线、火光、风雪、声响、气味)烘托哥特悬疑氛围。
+【当前所在房间】${room.name}：${room.desc}
+${penetrations.length?`【必须不着痕迹融入的渗透信息】(当成环境/声响/光线自然带过，绝不点明谁做了什么):\n${penetrations.map(p=>"· "+p).join("\n")}`:"【本轮无渗透信息】"}${moveText}
+输出一段90-130字、有画面感的客观场景叙事（以当前房间为中心），不要JSON不要标题。`;
+  try{return await callClaude(sys,`本轮公开发生：\n${actions.map(a=>"· "+a).join("\n")}\n写一段融合的、有环境氛围的客观叙事。`,400);}
+  catch(e){return "书房安静下来，壁炉的火光在胡桃木书架上缓缓爬动。窗外暴雪未歇，冰花在玻璃上悄然蔓延，整座山庄裹在一片苍白的死寂里。";}
+}
+
+/* ===== NPC MOVEMENT AI ===== */
+function tickNPCMovement(){
+  const moves=[];
+  // butler leaves study after round 1
+  if(GAME.round===2&&!GAME.butlerLeft&&GAME.npcRooms["爱德华兹管家"]==="书房"){
+    GAME.npcRooms["爱德华兹管家"]="走廊";GAME.butlerLeft=true;
+    moves.push("管家爱德华兹端着茶盘退出了书房，脚步声沿着走廊渐渐远去");
+  }
+  // every 3 rounds after that
+  if(GAME.round>=3&&GAME.round%3===0){
+    for(const [npc,room] of Object.entries(GAME.npcRooms)){
+      if(npc===GAME.hero)continue;
+      const nd=DUNGEON.npcs[npc];if(!nd)continue;
+      const moveChance=nd.regressor?0.45:(nd.guilty?0.35:0.2);
+      if(Math.random()<moveChance){
+        const exits=ROOMS[room]?.exits||[];
+        if(!exits.length)continue;
+        const dest=exits[Math.floor(Math.random()*exits.length)];
+        GAME.npcRooms[npc]=dest;
+        const isPresent=dest===GAME.currentRoom;
+        const enterPhrase=isPresent?"走了进来":"";
+        if(nd.regressor){
+          const phrases=[`${npc}从${room}起身，朝${dest}方向去了${enterPhrase}`,`${npc}的身影在${room}门口一闪，往${dest}方向移动${enterPhrase}`];
+          moves.push(phrases[Math.floor(Math.random()*phrases.length)]);
+        }else{
+          const phrases=[`${npc}离开了${room}，往${dest}去了${enterPhrase}`,`走廊方向传来脚步声——${npc}从${room}走向了${dest}${enterPhrase}`];
+          moves.push(phrases[Math.floor(Math.random()*phrases.length)]);
+        }
+      }
+    }
+  }
+  return moves;
+}
+
+/* ===== MOVE PLAYER ===== */
+function moveTo(roomName){
+  if(GAME.busy||GAME.cleared)return;
+  const oldRoom=GAME.currentRoom;
+  GAME.currentRoom=roomName;
+  // update scene desc
+  document.getElementById('sceneDesc').innerHTML=renderInteractiveHTML(ROOMS[roomName].desc, roomName);
+  // narration about arriving
+  const arrivals=presentNPCs().filter(n=>GAME.npcRooms[n]===roomName);
+  let arrivalText='';
+  if(arrivals.length){arrivalText=`${arrivals.join("、")}正在这里。`;}
+  addWorld(`你穿过门廊，走进了<b>${roomName}</b>。${ROOMS[roomName].desc.slice(0,60)}……${arrivalText}`);
+  // if moving away from someone you were talking to, reset
+  if(GAME.talkTo!=='全场'&&GAME.npcRooms[GAME.talkTo]!==roomName){
+    GAME.talkTo='全场';document.getElementById('talkName').textContent='全场';
+    toast(`${GAME.talkTo==='全场'?'':''}你离开了刚才的谈话对象——现在对全场说话`);
+  }
+  // re-render panels
+  renderNPCs();renderLocation();scrollBottom();
+  // add to history
+  GAME.history.push({who:GAME.hero,text:`（走向${roomName}）`});
+  // if there are new NPCs present, they might react
+  const newArrivals=presentNPCs().filter(n=>GAME.npcRooms[n]===roomName);
+  if(newArrivals.length>0){
+    setTimeout(async()=>{
+      const greeter=newArrivals[Math.floor(Math.random()*newArrivals.length)];
+      const n=DUNGEON.npcs[greeter];if(!n||GAME.busy)return;
+      const th=addThinking(`${greeter} 注意到了你的到来…`);
+      const msg=await npcResponse(greeter,`${GAME.hero}刚走进了${roomName}。你在场，看见他/她进来。按你的人设反应。`);
+      th.remove();addBubble(n.cls,greeter,n.color,msg);
+      GAME.history.push({who:greeter,text:msg});scrollBottom();
+    },600);
+  }
+}
+
+/* ===== TURN ORCHESTRATION ===== */
+let channel='public',stagedHidden=null;
+const field=document.getElementById('field'),ta=document.getElementById('ta'),flow=document.getElementById('flow'),sendBtn=document.getElementById('sendBtn');
+function switchCh(ch){channel=ch;
+  document.getElementById('tabPublic').classList.toggle('active',ch==='public');
+  document.getElementById('tabHidden').classList.toggle('active',ch==='hidden');
+  field.classList.toggle('public',ch==='public');field.classList.toggle('hidden',ch==='hidden');
+  sendBtn.textContent=ch==='public'?'发送 →':'暗中执行 →';
+  ta.placeholder=ch==='public'?'你说的话、你做的动作——在场所有人都能看见。':'只有你知道，土著看不见。例如：趁管家转身，我去翻书桌抽屉……';
+  ta.focus();}
+function clearStaged(){stagedHidden=null;document.getElementById('stagedPill').style.display='none';document.getElementById('dualTip').style.display='inline';}
+function scrollBottom(){flow.scrollTop=flow.scrollHeight;}
+ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();send();}});
+function setTalkTo(key){GAME.talkTo=key;const n=DUNGEON.npcs[key];document.getElementById('talkName').textContent=key==='全场'?'全场':(n?n.key:key);
+  document.querySelectorAll('#npcList .npc-item').forEach(el=>el.classList.toggle('active',el.dataset.key===key));ta.focus();}
+
+async function send(){
+  if(GAME.busy||GAME.cleared)return;
+  const text=ta.value.trim();
+  if(channel==='hidden'){if(!text)return;stagedHidden=text;
+    document.getElementById('stagedPill').style.display='inline-flex';document.getElementById('dualTip').style.display='none';
+    ta.value='';switchCh('public');toast('隐藏动作已暂存，将与下一条公开消息一起发出');return;}
+  if(!text&&!stagedHidden)return;
+  const hid=stagedHidden;if(hid)clearStaged();
+  ta.value='';setBusy(true);
+  let target=GAME.talkTo;
+
+  // ---- 公开频道通关检测 ----
+  if(text&&channel==='public'){
+    const wc=DUNGEON.winCondition||{};
+    if(wc.type==='accuse'){
+      const accPatterns=[
+        /我?指认\s*([^\s，,。]{2,12})\s*[是为].*凶/,
+        /凶手.*?[是为]\s*([^\s，,。]{2,12})/,
+        /([^\s，,。]{2,12})\s*[是为].*凶手/,
+        /我?指控\s*([^\s，,。]{2,12})/,
+        /真凶.*?[是为]\s*([^\s，,。]{2,12})/
+      ];
+      for(const p of accPatterns){
+        const m=text.match(p);if(m){
+          let accused=m[1].trim();
+          console.log('[指认] raw:',JSON.stringify(accused),'target:',JSON.stringify(wc.target));
+          // 别名匹配：玩家说"管家"→匹配到"爱德华兹管家"
+          const match=resolveAccused(accused);
+          if(match){accused=match;console.log('[指认] alias →',JSON.stringify(accused));}
+          if(accused===GAME.hero){toast('你不能指认自己');setBusy(false);return;}
+          ta.value='';clearStaged();setBusy(false);
+          await triggerSettle(accused);return;
+        }
+      }
+    }else if(wc.type==='guide_confession'){
+      // 婉玉激怒检测：玩家直接对婉玉说出真相 → 坏结局
+      if(target===wc.angerTrigger&&/[顾长卿].*[杀毒恨凶]|[凶手].*[顾长卿]|[下毒害杀]/.test(text)){
+        ta.value='';clearStaged();setBusy(false);
+        GAME.cleared=true;
+        addBubble('me',`${GAME.hero}（你）`,'#5b8bbf',text);
+        addBubble('npc',wc.angerTrigger,'#d4956b','婉玉沉默了很久。然后，那双茫然的眼彻底碎了——变成了别的什么。');
+        setTimeout(()=>{addWorld('她的哭声越来越大，越来越不像人的声音。房梁开始颤动，烛火全灭。祠堂陷入一片黑暗。五十年的等待，在一瞬间变成了五十年的恨。');},600);
+        setTimeout(()=>{
+          const box=document.getElementById('modalBox');
+          box.innerHTML=`<div class="modal-head"><h2>❌ 婉玉崩溃 · 副本失败</h2><button class="close" onclick="closeModal();returnToHostel()">✕</button></div>
+            <div class="modal-body">
+              <div class="reveal-card"><div class="rc-title">坏结局</div><p style="margin:0;font-size:13px;line-height:1.7">${esc(wc.angerHint||'不完整的真相比没有真相更残忍。')}</p></div>
+              <p style="color:var(--paper-dim);font-size:11px">婉玉要的不是碎片，是完整的答案——而且必须由顾长卿亲口说出来。下次，先劝说那个隐藏在众人之中的人。</p>
+              <button onclick="closeModal();returnToHostel()" style="width:100%;padding:12px;background:var(--blood);color:var(--paper);border:none;border-radius:5px;font-family:'Cormorant Garamond';font-size:16px;font-weight:600;cursor:pointer">回到异世旅社 →</button></div>`;
+          document.getElementById('modalBg').classList.add('open');
+        },1000);
+        return;
+      }
+      // 劝说顾长卿检测（支持"云游僧人""老僧""顾长卿"三种称呼）
+      const guidePatterns=[
+        /(顾长卿|云游僧|老僧).*[去走到跪见].*[婉玉祠堂面前]/,
+        /(顾长卿|云游僧|老僧).*[坦白承认开口说认错]/,
+        /[去走到].*[面对].*[婉玉祠堂]/,
+        /[跪下坦白认错].*[顾长卿|云游僧|老僧]/,
+        /[顾长卿|云游僧|老僧].*[欠].*[解释答案道歉]/,
+        /[你].*[欠].*[婉玉].*[解释答案]/
+      ];
+      let triggered=false;
+      for(const p of guidePatterns){
+        if(p.test(text)){triggered=true;break;}
+      }
+      if(triggered){
+        ta.value='';clearStaged();setBusy(false);
+        await triggerSettle(wc.target);return;
+      }
+    }
+  }
+
+  // check if talk target is still in the room
+  if(target!=='全场'&&GAME.npcRooms[target]!==GAME.currentRoom){
+    const tn=DUNGEON.npcs[target];const tName=tn?tn.key:target;
+    toast(`${tName}已经不在这个房间了（TA在${GAME.npcRooms[target]}）。已自动切换为对全场说话。`);
+    target='全场';GAME.talkTo='全场';document.getElementById('talkName').textContent='全场';
+  }
+
+  // detect movement command in public text
+  const movePattern=/[去走到前往进]+[：:\s]*([^\s，。,\.]+)/;
+  const moveMatch=text.match(movePattern);
+  let moved=false;
+  if(moveMatch){
+    const dest=moveMatch[1];
+    for(const rn of Object.keys(ROOMS)){
+      if(rn.includes(dest)||dest.includes(rn)){
+        if(ROOMS[GAME.currentRoom].exits.includes(rn)){
+          GAME.currentRoom=rn;moved=true;
+          document.getElementById('sceneDesc').innerHTML=renderInteractiveHTML(ROOMS[rn].desc, rn);renderLocation();
+          if(GAME.talkTo!=='全场'&&GAME.npcRooms[GAME.talkTo]!==rn){
+            GAME.talkTo='全场';document.getElementById('talkName').textContent='全场';}
+          break;
+        }else{toast(`${rn}不在此处的相邻房间——看看左侧出口面板可以前往哪些地方。`);}
+      }
+    }
+  }
+  if(moved)renderNPCs();
+
+  if(text){addBubble('me',`${GAME.hero}（你）`,'#5b8bbf',text);GAME.history.push({who:GAME.hero,text});}
+  scrollBottom();
+  const publicActions=[],penetrations=[];
+  if(text)publicActions.push(`${GAME.hero}${target==='全场'?'':`（对${target}）`}：${text}`);
+
+  // 1) hidden judgment (with room context)
+  if(hid){const t=addThinking('裁判正在判定你的暗中行动…');const res=await hiddenJudgment(GAME.hero,hid);t.remove();
+    addPrivate(res.feedback,res.clue);
+    if(res.clue&&!GAME.cluesFound.includes(res.clue)){GAME.cluesFound.push(res.clue);renderClues();checkAutoSettleHint();}
+    if(res.penetration)penetrations.push(res.penetration);scrollBottom();}
+
+  // 2) NPC responses (only present characters)
+  async function speak(key, situation){
+    if(GAME.npcRooms[key]!==GAME.currentRoom)return null; // skip if not in room
+    const c=DUNGEON.npcs[key];
+    const th=addThinking(`${key} 正在回应…`);
+    const msg=await npcResponse(key, situation); th.remove();
+    addBubble(c.cls,key,c.color,msg);
+    GAME.history.push({who:key,text:msg}); publicActions.push(`${key}：${msg}`);
+    adjustTrust(key,text); scrollBottom();
+    return msg;
+  }
+
+  if(target!=='全场' && DUNGEON.npcs[target]){
+    // directed question (only if present)
+    if(GAME.npcRooms[target]===GAME.currentRoom){
+      const msg=await speak(target, text||'有人在场中走动');
+      if(Math.random()<0.4){
+        const others=presentNPCs().filter(k=>k!==target);
+        if(others.length>0){
+          const weighted=others.flatMap(k=>DUNGEON.npcs[k].regressor?[k,k]:[k]);
+          const ik=weighted[Math.floor(Math.random()*weighted.length)];
+          await speak(ik, `刚刚 ${target} 说了：「${msg}」。你在旁听着，忍不住插一句。`);
+        }
+      }
+    }
+  } else {
+    // addressed to 全场 → only present characters answer
+    const present=presentNPCs();
+    const regressors=present.filter(k=>DUNGEON.npcs[k].regressor);
+    const natives=present.filter(k=>!DUNGEON.npcs[k].regressor);
+    const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+    const responders=[];
+    if(regressors.length) responders.push(shuffle(regressors)[0]);
+    shuffle(natives).slice(0, 1+Math.floor(Math.random()*2)).forEach(k=>responders.push(k));
+    const finalSet=[...new Set(responders)].slice(0,3);
+    if(finalSet.length===0){
+      // nobody here — ambient response
+      addAmbient("房间里很安静，没有人回应。也许该去别处看看——左侧出口面板显示了你可以前往的房间。");
+    }
+    for(const k of finalSet){
+      await speak(k, text || '主角打量着四周，似乎想弄清楚这里的状况');
+    }
+  }
+
+  // 3) NPC autonomous movement
+  const moves=tickNPCMovement();
+
+  // 4) public narration
+  const t3=addThinking('世界引擎正在编排场景…');
+  const narr=await publicNarration(publicActions,penetrations,moves);t3.remove();
+  addWorld(narr);scrollBottom();
+  if(Math.random()<0.3){const amb=DUNGEON.ambients[Math.floor(Math.random()*DUNGEON.ambients.length)];addAmbient(amb);scrollBottom();}
+  // if NPCs moved, add movement ambient
+  if(moves.length){
+    const moveAmb=moves[Math.floor(Math.random()*moves.length)];
+    setTimeout(()=>{addAmbient(moveAmb);scrollBottom();},400);
+  }
+
+  GAME.round++;GAME.timeMin+=4+Math.floor(Math.random()*4);
+  document.getElementById('roundN').textContent=GAME.round;updateClock();
+  // re-render in case NPCs moved
+  renderNPCs();renderLocation();
+  setBusy(false);
+}
+function setBusy(b){GAME.busy=b;sendBtn.disabled=b;}
+function adjustTrust(key,text){
+  if(!DUNGEON.npcs[key]||!DUNGEON.npcs[key].regressor||!text)return;
+  if(/信|帮|一起|合作|谢|结盟|联手/.test(text))GAME.trust[key]=Math.min(3,(GAME.trust[key]||0)+1);
+  if(/不信|防|滚|可疑|别|拒|骗/.test(text))GAME.trust[key]=Math.max(-3,(GAME.trust[key]||0)-1);
+}
+
+/* ---------- DOM builders ---------- */
+function addBubble(side,who,dot,text){const m=document.createElement('div');m.className='msg '+side;
+  const isNPC=side==='npc'||side==='regr';
+  m.innerHTML=`<span class="who"><span class="role-dot" style="background:${dot}"></span>${esc(who)}</span>
+    <div class="bubble-wrap"><div class="bubble">${esc(text)}</div>${isNPC?`<button class="pin-btn" data-ctext="${b64(text)}" data-cwho="${b64(who)}" onclick="saveAsClue(this)" title="记入线索">📌</button>`:''}</div>`;flow.appendChild(m);}
+function b64(s){return btoa(unescape(encodeURIComponent(s)));}
+function d64(s){return decodeURIComponent(escape(atob(s)));}
+function saveAsClue(btn){
+  const text=d64(btn.getAttribute('data-ctext'));
+  const speaker=d64(btn.getAttribute('data-cwho'));
+  const entry=`${speaker}：${text}`;
+  if(GAME.cluesFound.includes(entry)){toast('已经记过了');return;}
+  GAME.cluesFound.push(entry);renderClues();checkAutoSettleHint();
+  btn.classList.add('pinned');btn.textContent='✓';setTimeout(()=>{btn.classList.remove('pinned');btn.textContent='📌';},2000);
+  toast(`已记入线索 · ${speaker}`);
+}
+function addPrivate(text,clue){const p=document.createElement('div');p.className='private';
+  p.innerHTML=`<div class="ptag">PRIVATE · 仅你可见 · 世界引擎回执</div><p>${esc(text)}</p>${clue?`<div class="clue">${esc(clue)}</div>`:''}`;flow.appendChild(p);}
+function addWorld(text){const w=document.createElement('div');w.className='world';
+  w.innerHTML=`<span class="wlabel">World Engine · 世界叙事</span><p>${renderInteractiveHTML(text, GAME.currentRoom)}</p>`;flow.appendChild(w);}
+function addAmbient(text){const a=document.createElement('div');a.className='ambient';a.textContent=text;flow.appendChild(a);}
+function addThinking(label){const t=document.createElement('div');t.className='thinking';
+  t.innerHTML=`${esc(label)}<span class="dots"><span></span><span></span><span></span></span>`;flow.appendChild(t);scrollBottom();return t;}
+
+/* ===== 交互式场景文本 —— 把场景关键词变成可点击的搜查入口 ===== */
+function renderInteractiveHTML(text, roomId){
+  if(!text)return"";
+  let html=esc(text);
+  const room=ROOMS[roomId];
+  if(!room||!room.interactive)return html;
+  for(const [keyword,action] of Object.entries(room.interactive)){
+    if(!text.includes(keyword))continue;
+    const safeK=esc(keyword);
+    const safeA=esc(action).replace(/'/g,"&#39;");
+    html=html.replace(new RegExp(safeK,'g'),
+      `<span class="scene-obj" onclick="quickSearch('${safeK}','${safeA}')" title="暗中搜查">${safeK}</span>`);
+  }
+  return html;
+}
+function quickSearch(keyword,action){
+  if(GAME.busy||GAME.cleared)return;
+  switchCh('hidden');ta.value=action;ta.focus();
+  toast(`"${keyword}" —— 隐藏频道已备好，可直接发送或修改后发送`);
+}
+
+/* ---------- panels ---------- */
+function renderLocation(){
+  const room=ROOMS[GAME.currentRoom];
+  const el=document.getElementById('locationPanel');
+  let html=`<div class="loc-room"><span class="loc-icon">${room.icon}</span>${room.name}</div>`;
+  html+=`<div class="loc-desc">${renderInteractiveHTML(room.desc, GAME.currentRoom)}</div>`;
+  html+=`<div class="loc-exits">`;
+  for(const ext of room.exits){
+    const er=ROOMS[ext];
+    html+=`<div class="loc-exit" onclick="moveTo('${ext}')"><span>${er.icon} ${ext}</span><span class="arrow">→</span></div>`;
+  }
+  html+=`</div>`;
+  if(room.interactive){
+    html+=`<div class="loc-hint"><span>🔍 场景中高亮文字可直接点击搜查</span></div>`;
+  }
+  el.innerHTML=html;
+}
+function renderNPCs(){
+  const el=document.getElementById('npcList');
+  const present=presentNPCs();
+  const absent=Object.keys(GAME.npcRooms).filter(k=>!present.includes(k));
+  let html=`<div class="npc-item ${GAME.talkTo==='全场'?'active':''}" data-key="全场" onclick="setTalkTo('全场')">
+    <div class="avatar npc" style="background:radial-gradient(circle at 35% 30%,#3a3a3a,#161616);border-color:#444">众</div>
+    <div><div class="name">对全场说话</div><div class="tag">不特别针对谁</div></div><span class="talk-flag">▸ 当前</span></div>`;
+  // present NPCs
+  if(present.length){
+    html+=`<div class="npc-sec">◆ 在此地 · ${GAME.currentRoom}</div>`;
+    const presentNatives=present.filter(k=>!DUNGEON.npcs[k].regressor);
+    const presentRegrs=present.filter(k=>DUNGEON.npcs[k].regressor);
+    for(const k of [...presentNatives,...presentRegrs]){
+      const n=DUNGEON.npcs[k];
+      html+=`<div class="npc-item ${GAME.talkTo===k?'active':''}" data-key="${k}" onclick="setTalkTo('${k}')">
+        <div class="avatar ${n.cls}">${n.short}</div><div><div class="name">${n.key}</div><div class="tag">${n.tag}</div></div><span class="talk-flag">▸ 当前</span></div>`;
+    }
+  }else{
+    html+=`<div class="npc-sec">◆ 在此地</div>`;
+    html+=`<div class="npc-count">这里空无一人。也许该去别处看看。</div>`;
+  }
+  // absent NPCs
+  if(absent.length){
+    html+=`<div class="npc-sec">◇ 不在场</div>`;
+    for(const k of absent){
+      const n=DUNGEON.npcs[k];
+      html+=`<div class="npc-item absent"><div class="avatar ${n.cls}" style="opacity:.5">${n.short}</div><div><div class="name">${n.key}</div><div class="loc-tag">📍 ${GAME.npcRooms[k]}</div></div></div>`;
+    }
+  }
+  el.innerHTML=html;
+}
+function renderClues(){const el=document.getElementById('clueList');
+  if(!GAME.cluesFound.length){el.innerHTML='<div style="font-size:11px;color:var(--paper-dim);font-style:italic;opacity:.6">还没有发现任何线索。去搜查、问话吧——NPC 说的关键信息，可以点击气泡旁的 📌 记入线索。</div>';return;}
+  el.innerHTML=GAME.cluesFound.map((c,i)=>`<div class="clue-item"><span class="ct">线索 ${i+1}</span>${esc(c)}</div>`).join('');}
+
+/* ---------- modals ---------- */
+function getModals(){
+  const wc=DUNGEON.winCondition||{};
+  const isAccuse=wc.type==='accuse';
+  const cluesText=GAME.cluesFound.length?GAME.cluesFound.map((c,i)=>`${i+1}. ${esc(c)}`).join('<br>'):'(暂无，去查吧)';
+  const roomNames=Object.keys(ROOMS).join('、');
+  const roomCount=Object.keys(ROOMS).length;
+  const npcNames=DUNGEON.npcOrder?DUNGEON.npcOrder.map(k=>{const n=DUNGEON.npcs[k];return n?n.key:k;}).join('、'):'';
+  return {
+    rule:{title:'规则',body:`
+      <div class="field"><span class="lbl">副本</span><div class="val">${esc(DUNGEON.name)}。${esc(DUNGEON.scene||'')}</div></div>
+      <div class="field"><span class="lbl">场景地图 · 移动</span><div class="val">共${roomCount}个区域：${roomNames}。点击左侧出口移动，或直接描述去向。只有同房间的角色能对话。</div></div>
+      <div class="field"><span class="lbl">公开 / 隐藏双频道</span><div class="val">公开频道所有人可见；隐藏频道只有你和世界引擎知道。暗中行动可能留下"渗透痕迹"——场景中金色高亮文字可直接点击搜查。</div></div>
+      <div class="field"><span class="lbl">房间限定搜查</span><div class="val">不同线索藏在不同房间。在正确的房间搜查才能找到对应的线索——左侧 Location 面板有各房间的搜查方向提示。</div></div>
+      ${isAccuse?`<div class="field"><span class="lbl">通关方式</span><div class="val">查清真相后在公开频道指认真凶（也可说简称如"管家是凶手"），或点击右下角按钮选人指认。指认失败会扣次数，耗尽则副本失败。</div></div>`
+      :`<div class="field"><span class="lbl">通关方式</span><div class="val">${esc(wc.description||'消除执念')}。这不是抓凶手——你需要引导关键人物开口，让真相完整地回到执念者面前。在公开频道说出引导的话即可触发。</div></div>`}
+      <div class="field"><span class="lbl">不替别人做决定</span><div class="val">你只能描述自己的行动，结果由世界引擎裁定。</div></div>`},
+    case:{title:'案情',body:`
+      <div class="field"><span class="lbl">副本</span><div class="val">${esc(DUNGEON.name)}。${esc(DUNGEON.scene||'')}</div></div>
+      <div class="field"><span class="lbl">在场角色</span><div class="val">${npcNames||'（未知）'}。点选右侧角色即可与其对话——不同的人知道不同的事。</div></div>
+      <div class="field"><span class="lbl">通关目标</span><div class="val">${esc(wc.description||'查清真相')}。线索藏在对话与搜查中——多问不同的人、善用隐藏频道在不同房间搜查。</div></div>
+      <div class="field"><span class="lbl">已发现线索</span><div class="val">${cluesText}</div></div>`}
+  };
+}
+function openModal(k){const m=getModals()[k];const box=document.getElementById('modalBox');
+  box.innerHTML=`<div class="modal-head"><h2>${m.title}</h2><button class="close" onclick="closeModal()">✕</button></div><div class="modal-body">${m.body}</div>`;
+  document.getElementById('modalBg').classList.add('open');}
+function closeModal(){document.getElementById('modalBg').classList.remove('open');}
+
+/* ---------- 通关结算 ---------- */
+function regressorNPCs(){return Object.keys(GAME.trust).filter(k=>DUNGEON.npcs[k]?.regressor);}
+function regressorFateFields(){
+  const rs=regressorNPCs();if(!rs.length)return'';
+  return ','+rs.map(k=>{
+    const short=DUNGEON.npcs[k]?.short||k[0];
+    return `"${short}Fate":"${k}最后的选择,40字内"`;
+  }).join(',');
+}
+function regressorFateHTML(r){
+  const rs=regressorNPCs();if(!rs.length)return'';
+  const lines=rs.map(k=>{
+    const short=DUNGEON.npcs[k]?.short||k[0];
+    const fate=r[short+'Fate']||'';
+    return `<b style="color:var(--regr-text)">${esc(k)}：</b>${esc(fate)}`;
+  }).join('<br>');
+  return `<div class="reveal-card" style="border-color:var(--regr-line);background:rgba(107,74,122,.1)"><div class="rc-title" style="color:var(--regr-text)">同行者的去向</div><p style="margin:0;font-size:13px;line-height:1.7">${lines}</p></div>`;
+}
+function regressorTrustSummary(){
+  const rs=Object.entries(GAME.trust).filter(([k])=>DUNGEON.npcs[k]?.regressor);
+  if(!rs.length)return'';
+  return rs.map(([k,v])=>`对${k}的态度：${v}(负=防备,正=亲近)`).join('　');
+}
+function keyClueCount(){
+  return GAME.cluesFound.filter(c=>DUNGEON.clues.some(kc=>c.includes(kc)||kc.includes(c))).length;
+}
+async function triggerSettle(accused){
+  if(GAME.busy){toast('等当前这一轮结束再结算');return;}
+  const wc=DUNGEON.winCondition||{type:"accuse",description:"通关",target:null,maxFails:2};
+  console.log('[结算] accused:',JSON.stringify(accused),'wc.type:',wc.type,'wc.target:',JSON.stringify(wc.target),'DUNGEON.culprit:',JSON.stringify(DUNGEON.culprit));
+
+  // no accused → button click → show picker modal
+  if(!accused){
+    if(wc.type==='accuse'){
+      const box=document.getElementById('modalBox');
+      const npcNames=DUNGEON.npcOrder.filter(k=>k!==GAME.hero);
+      box.innerHTML=`<div class="modal-head"><h2>⚖ ${wc.description}</h2><button class="close" onclick="closeModal()">✕</button></div>
+        <div class="modal-body"><p style="color:var(--paper);margin-bottom:14px">你要指认谁？（也可直接在公开频道说"我指认XX是凶手"）<br><span style="font-size:11px;color:var(--paper-dim)">剩余机会：${wc.maxFails-GAME.failCount} 次</span></p>
+        ${npcNames.map(k=>{const n=DUNGEON.npcs[k];const label=n?n.key:k;return `<button onclick="closeModal();triggerSettle('${esc(k)}')" style="display:block;width:100%;padding:10px;margin-bottom:6px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--paper);cursor:pointer;font-family:'Noto Serif SC',serif;font-size:13px;text-align:left;transition:.2s" onmouseover="this.style.borderColor='var(--gold-dim)'" onmouseout="this.style.borderColor='var(--line)'">${esc(label)}</button>`;}).join('')}
+        </div>`;
+      document.getElementById('modalBg').classList.add('open');
+      return;
+    }
+    if(wc.type==='guide_confession'){
+      const kc=keyClueCount();const enough=kc>=GAME.keyClueThreshold;
+      const box=document.getElementById('modalBox');
+      if(!enough){
+        box.innerHTML=`<div class="modal-head"><h2>📜 提交真相</h2><button class="close" onclick="closeModal()">✕</button></div>
+          <div class="modal-body">
+            <p style="color:var(--blood);line-height:1.8">你掌握的线索还不够拼出完整的真相。</p>
+            <p style="color:var(--paper-dim);font-size:11px">目前发现 <b style="color:var(--gold)">${kc}</b> 条关键线索，至少需要 <b style="color:var(--gold)">${GAME.keyClueThreshold}</b> 条。继续搜查、继续问话——每个房间、每个角色都可能有你还没找到的东西。</p>
+            <button onclick="closeModal()" style="margin-top:12px;width:100%;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--paper);cursor:pointer;font-family:'Noto Serif SC',serif;font-size:13px">继续调查</button>
+          </div>`;
+      }else{
+        box.innerHTML=`<div class="modal-head"><h2>📜 真相已明</h2><button class="close" onclick="closeModal()">✕</button></div>
+          <div class="modal-body">
+            <p style="color:var(--gold);line-height:1.8">你已经掌握了足够的线索。现在需要做最后一步——</p>
+            <p style="color:var(--paper);line-height:1.8">在公开频道<b style="color:var(--gold)">劝说顾长卿（隐藏在众人之中）</b>向婉玉认错。让他跪下，让他开口，让他亲口说出五十年前的那句话。</p>
+            <p style="color:var(--blood);font-size:11px">⚠ 绝对不要直接告诉婉玉真相——不完整的真相比没有真相更残忍。她会崩溃。</p>
+            <button onclick="closeModal()" style="margin-top:12px;width:100%;padding:10px;background:var(--gold);color:var(--ink);border:none;border-radius:4px;font-family:'Noto Serif SC',serif;font-size:13px;cursor:pointer">去劝他</button>
+          </div>`;
+      }
+      document.getElementById('modalBg').classList.add('open');
+      return;
+    }
+    // other win condition types — just do the check
+    accused='';
+  }
+
+  // ---- FAILURE: wrong accusation ----
+  if(wc.type==='accuse'&&wc.target&&accused!==wc.target){
+    GAME.failCount++;
+    const remaining=wc.maxFails-GAME.failCount;
+    document.getElementById('modalBg').classList.remove('open');
+    if(remaining<=0){
+      // game over — locked
+      GAME.cleared=true;
+      const box=document.getElementById('modalBox');
+      box.innerHTML=`<div class="modal-head"><h2>❌ 指认失败</h2><button class="close" onclick="closeModal()">✕</button></div>
+        <div class="modal-body">
+          <div class="reveal-card"><div class="rc-title">耗尽全部机会</div><p style="margin:0;font-size:13px;line-height:1.7">你指认了 <b style="color:var(--blood)">${esc(accused)}</b>，但 TA 不是凶手。所有的指认机会已经耗尽——真正的凶手 <b style="color:var(--blood)">${esc(wc.target)}</b> 将永远逍遥法外。</p></div>
+          <div class="reveal-card" style="border-color:var(--gold-dim);background:rgba(201,165,88,.06)"><div class="rc-title" style="color:var(--gold)">副本失败</div><p style="margin:0;font-size:13px;line-height:1.7">你没能在这个世界里找到真相。旅社的门不会为你开启——至少不是以胜利者的身份。</p></div>
+          <button onclick="closeModal();returnToHostel()" style="width:100%;padding:12px;background:var(--blood);color:var(--paper);border:none;border-radius:5px;font-family:'Cormorant Garamond';font-size:16px;font-weight:600;cursor:pointer">回到异世旅社 →</button></div>`;
+      document.getElementById('modalBg').classList.add('open');
+      return;
+    }
+    // still has attempts → dramatic NPC reaction + continue
+    addBubble('me',`${GAME.hero}（你）`,'#5b8bbf',`我指认${accused}是凶手！`);
+    GAME.history.push({who:GAME.hero,text:`我指认${accused}是凶手！`});
+    setTimeout(async()=>{
+      const reactSys=`你是${accused}。此刻${GAME.hero}当众指认你是凶手。你当然不是（或者你没有暴露），你要做出符合人设的反应——委屈、愤怒、或冷静反驳，70字内。不要JSON。`;
+      const react=await callClaude(reactSys,`${GAME.hero}指着你说："${accused}，你就是凶手！"请以${accused}的身份回应。`,300);
+      addBubble(DUNGEON.npcs[accused]?.cls||'npc',accused,DUNGEON.npcs[accused]?.color||'#bf9a5b',react||'「你……你凭什么这么说？！」');
+      GAME.history.push({who:accused,text:react});scrollBottom();
+      addWorld(`空气骤然凝固。${accused}的反应让所有人不约而同地沉默了——片刻后，大家意识到，真相还没被抓住。`);
+      toast(`指认失败 · ${accused}不是凶手。${(wc.failHint||"真正的那个人还在暗中。").replace("{remaining}",remaining)} 剩余${remaining}次`, true);
+      renderNPCs();
+    },400);
+    return;
+  }
+
+  // ---- SUCCESS ----
+  if(GAME.busy){toast('等当前这一轮结束再结算');return;}
+  const box=document.getElementById('modalBox');
+  const verb=wc.type==='accuse'?'指认':wc.description;
+  box.innerHTML=`<div class="modal-head"><h2>⚖ ${verb} · 副本结算</h2><button class="close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body"><p style="text-align:center;color:var(--gold);font-style:italic;font-family:'Cormorant Garamond'">世界引擎正在根据你的调查，裁定结局……</p>
+    <div class="thinking" style="justify-content:center">生成结局<span class="dots"><span></span><span></span><span></span></span></div></div>`;
+  document.getElementById('modalBg').classList.add('open');
+
+  const condPrompt=wc.type==='guide_confession'
+    ? `【通关条件】玩家已掌握真相并成功劝说了那个穿僧袍的人（玩家现在应该已经知道他就是顾长卿）。现在顾长卿跪在婉玉面前，亲口说出了完整真相——包括他爱过她。婉玉等了五十年，终于等到了那个答案。你是结局叙事者，描述顾长卿的坦白、婉玉的释怀、阿莲牵着婉玉的手一起离开、六百盏长明灯同时熄灭。玩家发现的线索：${GAME.cluesFound.join("；")||""}`
+    : (wc.type==='resolve_obsession'
+    ? `【通关条件】消除执念——帮助指定NPC了却心愿。玩家所做的：${GAME.cluesFound.join("；")||"(似乎什么都没做)"}。你是结局叙事者，描述NPC的执念是否被化解。`
+    : `【真相】${DUNGEON.truth}\n【凶手】${DUNGEON.culprit}\n【玩家指认】${accused||wc.target} —— ${accused===wc.target?'指认正确！':'（通过调查触发的正确结局）'}`);
+
+  const sys=`你是无限流副本的结算叙事者。揭晓结局。${condPrompt}
+【玩家发现的线索】${GAME.cluesFound.join("；")||"(几乎没查到)"}
+${regressorTrustSummary()}
+输出 JSON：
+{"verdict":"对玩家调查/行为的点评,50字内","truth":"结局真相,第三人称,100字内"${regressorFateFields()},"epilogue":"通关收尾,40字内"}`;
+  let r;
+  try{r=parseJSON(await callClaude(sys,"生成结算JSON。",800));}
+  catch(e){r={verdict:"这段旅途结束了。",truth:DUNGEON.truth||"故事在此定格。",kFate:"K留下一个意味深长的背影。",weiFate:"薇的面纱后，看不清表情。",aqiFate:"那个少年嘴角掠过一丝弧度。",epilogue:"你回到了异世旅社的大堂，下一扇门已为你开启。"};}
+  GAME.cleared=true;
+  box.querySelector('.modal-body').innerHTML=`
+    ${wc.type==='accuse'?`<div class="reveal-card"><div class="rc-title">真凶</div><p style="margin:0;font-size:13px;line-height:1.7"><b style="color:var(--blood)">${esc(wc.target||'—')}</b></p></div>`:''}
+    <div class="reveal-card"><div class="rc-title">结局</div><p style="margin:0;font-size:13px;line-height:1.7">${esc(r.truth)}</p></div>
+    ${regressorFateHTML(r)}
+    <div class="reveal-card" style="border-color:var(--gold-dim);background:rgba(201,165,88,.06)"><div class="rc-title" style="color:var(--gold)">引擎点评</div><p style="margin:0;font-size:13px;line-height:1.7">${esc(r.verdict)}</p></div>
+    <p style="text-align:center;color:var(--paper-dim);margin-top:14px;font-style:italic">${esc(r.epilogue)}</p>
+    <button onclick="returnToHostel()" style="margin-top:8px;width:100%;padding:12px;background:var(--gold);color:var(--ink);border:none;border-radius:5px;font-family:'Cormorant Garamond';font-size:16px;font-weight:600;cursor:pointer">回到异世旅社 →</button>`;
+}
+
+/* ===== 线索阈值自动提示 ===== */
+function checkAutoSettleHint(){
+  if(GAME.cleared||GAME.failCount>=2)return;
+  const kc=keyClueCount();
+  if(kc>=GAME.keyClueThreshold){
+    const wc=DUNGEON.winCondition||{};
+    const btn=document.getElementById('settleBtn');
+    if(btn&&wc.type==='accuse'){
+      btn.textContent='⚖ 真相已近 · 指认真凶';
+      btn.style.borderColor=GAME.failCount>0?'var(--blood)':'var(--gold)';
+    }else if(btn&&wc.type==='guide_confession'){
+      btn.textContent='📜 真相已明 · 提交并劝说';
+      btn.style.borderColor='var(--gold)';
+    }
+    if(kc===GAME.keyClueThreshold&&GAME.failCount===0){
+      const hint=wc.type==='guide_confession'
+        ?'碎片拼成了完整的真相。点击右下角提交真相，然后劝说顾长卿（他就在众人之中）——让他跪下，让他开口。但绝对不要直接去告诉婉玉。'
+        :'空气里的线索渐渐拼成了一幅完整的画面。你知道，是时候做一个决定了——在公开频道指认真凶，或点击右下角按钮。';
+      setTimeout(()=>addAmbient(hint),600);
+    }
+  }
+}
+
+/* ---------- utils ---------- */
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+let toastTimer;function toast(msg,sticky){const t=document.getElementById('toast');t.innerHTML=`${msg}<span class="toast-x" onclick="event.stopPropagation();document.getElementById('toast').classList.remove('show');clearTimeout(toastTimer)">✕</span>`;t.onclick=()=>{t.classList.remove('show');clearTimeout(toastTimer);};t.classList.add('show');clearTimeout(toastTimer);if(!sticky)toastTimer=setTimeout(()=>t.classList.remove('show'),6000);}
+function updateClock(){
+  if(currentDungeonId==='lantern_ashes'){
+    const day=Math.min(7,Math.ceil(GAME.round/8));
+    document.getElementById('clock').textContent=`入宅 · 第${day}夜`;
+  }else{
+    const h=String(Math.floor(GAME.timeMin/60)).padStart(2,'0'),m=String(GAME.timeMin%60).padStart(2,'0');
+    document.getElementById('clock').textContent=`庄园时间 ${h}:${m}`;
+  }
+}
+
+/* ===== NARRATIVE FLOW ===== */
+function typeNarr(el,text,cb){el.innerHTML='';let i=0;const tick=()=>{if(i<=text.length){el.innerHTML=text.slice(0,i).replace(/\n/g,'<br>');i+=2;setTimeout(tick,18);}else{el.innerHTML=text.replace(/\n/g,'<br>');if(cb)cb();}};tick();}
+
+const PRO_TEXT=`深夜，你的手机亮起。\n一条没有发件人的短信：\n\n「您已被选中入住<span class="em">异世旅社</span>。\n房间已备好，请勿拒绝。」\n\n你还没来得及删除，窗外的路灯忽然全灭了。\n黑暗里，房间的门——你家明明没有这扇门——\n缓缓向内打开，门后是望不到底的暖黄灯光。\n一股力量攫住了你……`;
+
+window.addEventListener('load',()=>{
+  typeNarr(document.getElementById('proNarr'),PRO_TEXT,()=>{
+    setTimeout(()=>{document.getElementById('proStep1').style.display='block';document.getElementById('proStep1').classList.add('fade-in');},400);});
+});
+document.getElementById('proNext').addEventListener('click',()=>{
+  GAME.hero=(document.getElementById('heroName').value||'霍尔特').trim().slice(0,12)||'霍尔特';
+  document.getElementById('prologue').style.display='none';showHostel();
+});
+
+function showHostel(){
+  const hostel=document.getElementById('hostel');hostel.style.display='flex';
+  const txt=`你独自站在一间古旧旅社的大堂里。\n暖黄的吊灯在头顶轻轻摇晃，褪色的红毯一直铺向幽深的走廊，空气里浮着旧书与檀香的味道。\n柜台后没有人，只有一块铜牌泛着冷光：\n\n「<span class="em">${GAME.hero}</span>，欢迎。\n推开任意一扇门，即入一个世界。\n你将孤身前往。活着通关，门会再次为您开启。\n至于门后遇见谁——是友是敌，悉听尊便。」\n\n没有人陪着你。只有那两扇门，在走廊尽头静静等待。`;
+  typeNarr(document.getElementById('hostelNarr'),txt,()=>{setTimeout(()=>{document.getElementById('doorArea').style.display='block';document.getElementById('doorArea').classList.add('fade-in');},400);});
+}
+
+async function enterDungeon(id){
+  id=id||'snowbound_manor';
+  if(!dungeonLoaded||currentDungeonId!==id){toast('剧本数据加载中……');await loadDungeon(id);}
+  document.getElementById('hostel').style.display='none';
+  const de=document.getElementById('dungeonEnter');de.style.display='flex';
+  const isLantern=id==='lantern_ashes';
+  const txt=isLantern
+    ?`门在你身后合拢，风雪声骤然消失。\n取而代之的是一种更深、更静的沉默——\n像有什么东西在这宅子里等了很久，久到连呼吸都忘了。\n当你睁开眼，一座巨大的中式老宅从浓雾中浮出来。\n门匾腐朽，但还辨得出两个字：\n\n<span class="em">顾 宅</span>\n\n东厢房传来女人压着嗓子的哭声。\n后院方向，一口枯井正对着月光。`
+    :`壹号门在你身后合拢。\n刺骨的寒风扑面，雪粒打在脸上，化成冰冷的水珠。\n当你睁开眼——你已站在一座维多利亚式庄园的书房里。\n壁炉烧着橡木，胡桃木书架顶到天花板，落地窗外是吞没一切的暴风雪。\n\n空气里有一丝若有似无的、不属于书房的甜腥气。\n这里，昨夜死了一个人。`;
+  typeNarr(document.getElementById('enterNarr'),txt,()=>{
+    setTimeout(()=>{
+      const btn=document.createElement('button');
+      btn.textContent=isLantern?'走入浓雾 →':'踏入庄园 →';btn.className='ov-btn';
+      btn.style.marginTop='16px';
+      btn.onclick=()=>{de.style.display='none';startDungeon();};
+      de.querySelector('.ov-card').appendChild(btn);
+    },600);});
+}
+
+function resetGameState(){
+  GAME.round=1;GAME.timeMin=8*60+30;GAME.history=[];GAME.cluesFound=[];
+  GAME.talkTo='全场';GAME.busy=false;GAME.cleared=false;GAME.failCount=0;
+  GAME.trust={};
+  GAME.moveLog=[];GAME.butlerLeft=false;
+  document.getElementById('flow').innerHTML='';
+}
+
+function startDungeon(){
+  resetGameState();
+  const id=currentDungeonId;
+  const firstRoom=id==='lantern_ashes'?'前院':'书房';
+  GAME.currentRoom=firstRoom;
+  const npcRooms={};
+  if(id==='lantern_ashes'){
+    npcRooms["顾长卿"]="前院";npcRooms["婉玉"]="东厢房";npcRooms["阿莲"]="后院";npcRooms["老管家"]="走廊";
+    npcRooms["说书人·老周"]="前院";npcRooms["报社记者·沈小姐"]="前院";npcRooms["退伍军官·郑先生"]="前院";
+    GAME.trust={"说书人·老周":0,"报社记者·沈小姐":0,"退伍军官·郑先生":0};
+  }else{
+    npcRooms["爱德华兹管家"]="书房";npcRooms["女仆玛莎"]="厨房";npcRooms["厨师博比"]="厨房";
+    npcRooms["园丁老汤姆"]="庭院";npcRooms["陌生旅人·K"]="书房";npcRooms["戴面纱的薇"]="书房";npcRooms["少年·阿七"]="书房";
+    GAME.trust={"陌生旅人·K":0,"戴面纱的薇":0,"少年·阿七":0};
+  }
+  GAME.npcRooms=npcRooms;
+
+  document.getElementById('heroNameDisp').textContent=GAME.hero;
+  document.getElementById('heroAvatar').textContent=GAME.hero[0];
+  document.getElementById('dungeonName').textContent=DUNGEON.name;
+  document.getElementById('modeBadge').textContent=id==='lantern_ashes'?'副本 · 执念':'副本 · 推理';
+  document.getElementById('sceneDesc').innerHTML=renderInteractiveHTML(ROOMS[firstRoom].desc, firstRoom);
+  document.getElementById('questText').innerHTML=DUNGEON.quest||'';
+  const wc=DUNGEON.winCondition||{};
+  const btn=document.getElementById('settleBtn');
+  if(wc.type==='guide_confession'){btn.textContent='📜 提交真相 · 消除执念';}
+  else{btn.textContent='⚖ 指认凶手 · 尝试通关';}
+  btn.style.borderColor='var(--blood)';
+  renderLocation();renderNPCs();renderClues();updateClock();
+
+  if(id==='lantern_ashes'){
+    addWorld('浓雾将整座顾宅裹在一片苍白的沉寂里。青石地上积着五十年的灰，老槐树半死不活地站在前院。远处——也许是东厢房——有女人在哭，压着嗓子，像是离得很远，又像是就在耳边。门匾上的"顾宅"二字已经腐朽，但还能辨认。院子里还站着几个和你一样被卷进来的人，各怀心思。');
+    addBubble('npc','云游僧人','#bf9a5b','「贫僧云游至此。此宅怨气极重——那位叫婉玉的女子，已经在这里等了五十年了。若诸位愿意协助贫僧超度亡魂，贫僧感激不尽。」');
+    addBubble('regr','说书人·老周','#c79ad4','白发老人摇了摇破折扇，慢悠悠地说：「顾宅……五十年前的事，老朽倒是听过几段。不急，不急，先看看。」');
+    addBubble('regr','报社记者·沈小姐','#e8a87c','「终于有人来了！」一个齐耳短发的女子拿着笔记本凑过来，「我是报社的——你们谁先到？有没有看见一个穿红衣服的女人？那边哭声听到了吗？」');
+    addBubble('regr','退伍军官·郑先生','#b0a4c8','壮年男人抱着胳膊站在槐树下，哼了一声：「鬼魂？我看是风。先把宅子搜一遍再说。」');
+    GAME.history.push({who:'云游僧人',text:'此宅怨气极重——那位叫婉玉的女子，已经在这里等了五十年了。'});
+    GAME.history.push({who:'说书人·老周',text:'顾宅五十年前的事，老朽倒是听过几段。不急，先看看。'});
+    GAME.history.push({who:'报社记者·沈小姐',text:'我是报社的——你们谁先到？有没有看见一个穿红衣服的女人？'});
+    GAME.history.push({who:'退伍军官·郑先生',text:'鬼魂？我看是风。先把宅子搜一遍再说。'});
+    setTimeout(()=>{addAmbient('走廊方向传来老管家的低语：「井里有人……井里有人睡着了……」');},2000);
+    toast('三个同行的异乡人：说书人老周知道掌故，记者沈小姐好奇心过盛，军官郑先生铁石心肠。信谁、用谁、防谁——你自己判断。');
+  }else{
+    addWorld('暴雪把整座山庄按进一片苍白的寂静里。书房的壁炉烧着橡木，火光在墙上的猎鹿油画上缓慢爬动，把胡桃木书架的影子拉得很长。爱德华兹管家端着茶盘进来，将一杯红茶轻轻搁在你手边。');
+    addBubble('npc','爱德华兹管家','#bf9a5b','「这样的天气，先生还是先暖暖身子吧。老爷他……唉，向来心善。不过老奴还有事务要处理——先生若有需要，请摇铃。」');
+    addBubble('regr','陌生旅人·K','#c79ad4','「又一个客人。这庄子里的死人，可不止表面那一个。想活着出去，最好别太信任何人——包括我。」');
+    addBubble('regr','戴面纱的薇','#c79ad4','「别听他的。你看着就是聪明人——不如我们搭个伙？那个女仆，现在多半在厨房，我看她准知道些什么。」');
+    addBubble('regr','少年·阿七','#c79ad4','「两、两位别吵……这位大哥，你也是刚来的吗？我什么都不懂，好害怕……」');
+    GAME.history.push({who:'爱德华兹管家',text:'这样的天气，先生还是先暖暖身子吧。不过老奴还有事务要处理。'});
+    GAME.history.push({who:'陌生旅人·K',text:'想活着出去，别太信任何人，包括我。'});
+    GAME.history.push({who:'戴面纱的薇',text:'不如我们搭个伙？女仆现在多半在厨房，我看她准是知道些什么。'});
+    GAME.history.push({who:'少年·阿七',text:'我什么都不懂，好害怕……能不能别丢下我一个人呀？'});
+    toast('左侧出口可移动至其他房间。不同房间有不同的人、不同的线索。');
+  }
+  setTimeout(()=>ta.focus(),300);
+}
+
+function returnToHostel(){
+  closeModal();
+  const hostel=document.getElementById('hostel');hostel.style.display='flex';
+  document.getElementById('doorArea').style.display='none';
+  const completedName=DUNGEON.name;
+  const txt=`门在你身后重新合拢。\n你独自回到了异世旅社的大堂。脚步声在空旷的厅里回响。\n柜台的铜牌上，又一行字迹缓缓浮现：\n\n「<span class="em">${completedName} · 已通关</span>」\n\n两扇门都敞开着——你可以推开任意一扇，\n再走一遍，或者去另一个世界。`;
+  typeNarr(document.getElementById('hostelNarr'),txt,()=>{setTimeout(()=>{
+    document.getElementById('doorArea').style.display='block';
+    const d1=document.getElementById('door1');const d2=document.getElementById('door2');
+    if(currentDungeonId==='snowbound_manor'){d1.querySelector('.dlock').textContent='✓ 已通关';}
+    else{d2.querySelector('.dlock').textContent='✓ 已通关';}
+  },400);});
+}
+</script>
+</body>
+</html>
