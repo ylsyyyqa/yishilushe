@@ -365,7 +365,8 @@ const GAME={hero:"霍尔特",round:1,timeMin:8*60+30,history:[],cluesFound:[],
     "爱德华兹管家":"书房","女仆玛莎":"厨房","厨师博比":"厨房",
     "园丁老汤姆":"庭院","陌生旅人·K":"书房","戴面纱的薇":"书房","少年·阿七":"书房"
   },
-  moveLog:[], butlerLeft:false
+  moveLog:[], butlerLeft:false,
+  spokeThisRound:[], conversationPairs:[], roundCooldown:{}
 };
 
 function transcript(n=10){return GAME.history.slice(-n).map(h=>`[${h.who}] ${h.text}`).join("\n")||"（刚进入副本）";}
@@ -462,12 +463,27 @@ function tickNPCMovement(){
     GAME.npcRooms["爱德华兹管家"]="走廊";GAME.butlerLeft=true;
     moves.push("管家爱德华兹端着茶盘退出了书房，脚步声沿着走廊渐渐远去");
   }
-  // every 3 rounds after that
+  // 降低所有本轮发言者的冷却值
+  for(const k of Object.keys(GAME.roundCooldown)){
+    if(GAME.roundCooldown[k]>0)GAME.roundCooldown[k]--;
+  }
+  // 每3轮触发NPC自主移动
   if(GAME.round>=3&&GAME.round%3===0){
+    // 对话配对：两人刚说过话，应倾向于留在同一房间
+    const paired=new Set();
+    for(const [a,b] of GAME.conversationPairs){
+      paired.add(a);paired.add(b);
+    }
     for(const [npc,room] of Object.entries(GAME.npcRooms)){
       if(npc===GAME.hero)continue;
-      if(npc===GAME.talkTo)continue; // 不移动玩家正在对话的对象
+      if(npc===GAME.talkTo)continue; // 玩家正在对话的对象不移动
       const nd=DUNGEON.npcs[npc];if(!nd)continue;
+      // 本轮说过话的不移动
+      if(GAME.spokeThisRound.includes(npc))continue;
+      // 处于冷却期的不移动（刚说过话的2轮内）
+      if(GAME.roundCooldown[npc]>0)continue;
+      // 对话配对中的不移动（刚和别人说过话）
+      if(paired.has(npc))continue;
       const moveChance=nd.traveler?0.45:(nd.guilty?0.35:0.2);
       if(Math.random()<moveChance){
         const exits=ROOMS[room]?.exits||[];
@@ -483,7 +499,7 @@ function tickNPCMovement(){
         }else{
           moves.push(`${dn}离开了${room}，往${dest}去了${arrivedHere?'，走了进来':''}`);
         }
-        // 离场痕迹：NPC 从当前房间离开，立即在对话流中显示
+        // 离场痕迹
         if(wasHere&&!arrivedHere){
           const leaveMsgs=nd.traveler
             ?[`${dn}向众人点了点头，转身离开了${room}。`,`${dn}似乎想起了什么，匆匆走出了${room}。`]
@@ -492,7 +508,7 @@ function tickNPCMovement(){
             :[`${dn}走了出去。`,`${dn}离开了${room}。`];
           addAmbient(leaveMsgs[Math.floor(Math.random()*leaveMsgs.length)]);
         }
-        // 入场痕迹：NPC 进入当前房间
+        // 入场痕迹
         if(arrivedHere&&!wasHere){
           const arriveMsgs=nd.traveler
             ?[`${dn}走了进来，环顾四周。`,`${dn}推门而入，朝在场的人点头致意。`]
@@ -678,7 +694,9 @@ async function send(){
     if(res.penetration)penetrations.push(res.penetration);scrollBottom();}
 
   // 2) NPC responses (only present characters)
-  async function speak(key, situation){
+  GAME.spokeThisRound=[];
+  GAME.conversationPairs=[];
+  async function speak(key, situation, replyTo){
     if(GAME.npcRooms[key]!==GAME.currentRoom)return null; // skip if not in room
     const c=DUNGEON.npcs[key];
     const displayName=npcName(key);
@@ -686,6 +704,10 @@ async function send(){
     const msg=await npcResponse(key, situation); th.remove();
     addBubble(c.cls,displayName,c.color,msg);
     GAME.history.push({who:key,text:msg}); publicActions.push(`${key}：${msg}`);
+    // 记录发言 & 对话配对
+    GAME.spokeThisRound.push(key);
+    GAME.roundCooldown[key]=(GAME.roundCooldown[key]||0)+2; // 发言后2轮冷却
+    if(replyTo){GAME.conversationPairs.push([key,replyTo]);}
     adjustTrust(key,text); scrollBottom();
     return msg;
   }
@@ -693,16 +715,16 @@ async function send(){
   if(target!=='全场' && DUNGEON.npcs[target]){
     // directed question (only if present)
     if(GAME.npcRooms[target]===GAME.currentRoom){
-      const msg=await speak(target, text||'有人在场中走动');
+      const msg=await speak(target, text||'有人在场中走动', GAME.hero);
       if(Math.random()<0.4){
         const others=presentNPCs().filter(k=>k!==target);
         if(others.length>0){
           const weighted=others.flatMap(k=>DUNGEON.npcs[k].traveler?[k,k]:[k]);
           const ik=weighted[Math.floor(Math.random()*weighted.length)];
-          const reply=await speak(ik, `刚刚 ${target} 说了：「${msg}」。你在旁听着，忍不住插一句。`);
+          const reply=await speak(ik, `刚刚 ${target} 说了：「${msg}」。你在旁听着，忍不住插一句。`, target);
           // 如果插话的是旅人，NPC target 有概率回应旅人
           if(reply&&DUNGEON.npcs[ik]?.traveler&&!DUNGEON.npcs[target]?.traveler&&Math.random()<0.5){
-            await speak(target, `刚才 ${ik} 插了一句话：「${reply}」。按你的人设回应TA。`);
+            await speak(target, `刚才 ${ik} 插了一句话：「${reply}」。按你的人设回应TA。`, ik);
           }
         }
       }
@@ -722,14 +744,41 @@ async function send(){
       addAmbient("房间里很安静，没有人回应。也许该去别处看看——左侧出口面板显示了你可以前往的房间。");
     }
     for(const k of finalSet){
-      await speak(k, text || '主角打量着四周，似乎想弄清楚这里的状况');
+      await speak(k, text || '主角打量着四周，似乎想弄清楚这里的状况', GAME.hero);
     }
     // 如果旅人说了话但没有土著回应，给未发言的土著一个回应的机会
     const spokeKeys=finalSet;
     const unspokenNatives=natives.filter(k=>!spokeKeys.includes(k));
     if(spokeKeys.some(k=>DUNGEON.npcs[k]?.traveler)&&unspokenNatives.length>0&&Math.random()<0.55){
       const native=shuffle(unspokenNatives)[0];
-      await speak(native,`刚才在场有人说了话。你听到了，按你的人设和性格作出反应——可以赞同、反驳、补充，或装作没听见。`);
+      const triggerTrav=spokeKeys.find(k=>DUNGEON.npcs[k]?.traveler);
+      await speak(native,`刚才在场有人说了话。你听到了，按你的人设和性格作出反应——可以赞同、反驳、补充，或装作没听见。`, triggerTrav||null);
+    }
+  }
+
+  // 2.5) 言语驱动移动：NPC 说了要去哪，就真的去
+  for(const k of GAME.spokeThisRound){
+    const lastMsg=GAME.history.filter(h=>h.who===k).pop();
+    if(!lastMsg)continue;
+    const said=lastMsg.text;
+    const room=GAME.npcRooms[k];
+    const exits=ROOMS[room]?.exits||[];
+    // 匹配"去XX"模式
+    for(const ex of exits){
+      if(said.includes(ex)||said.includes('去'+ex)){
+        if(GAME.npcRooms[k]!==ex&&k!==GAME.talkTo){
+          const wasHere=GAME.npcRooms[k]===GAME.currentRoom;
+          const arrivedHere=ex===GAME.currentRoom;
+          GAME.npcRooms[k]=ex;
+          const dn=npcName(k);
+          if(wasHere&&!arrivedHere){
+            addAmbient(`${dn}如自己所说，起身去了${ex}。`);
+          }else if(arrivedHere&&!wasHere){
+            setTimeout(()=>{addAmbient(`${dn}走了进来——果然如TA所说，来${ex}了。`);scrollBottom();},400);
+          }
+          break;
+        }
+      }
     }
   }
 
@@ -1099,7 +1148,7 @@ function resetGameState(){
   GAME.round=1;GAME.timeMin=8*60+30;GAME.history=[];GAME.cluesFound=[];
   GAME.talkTo='全场';GAME.busy=false;GAME.cleared=false;GAME.failCount=0;
   GAME.trust={};
-  GAME.moveLog=[];GAME.butlerLeft=false;
+  GAME.moveLog=[];GAME.butlerLeft=false;GAME.spokeThisRound=[];GAME.conversationPairs=[];GAME.roundCooldown={};
   document.getElementById('flow').innerHTML='';
 }
 
