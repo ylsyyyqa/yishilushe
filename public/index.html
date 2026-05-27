@@ -4,14 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>异世旅社 · 无限流</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#0d0b09; --panel:#16120e; --panel-2:#1d1813; --line:#2e2419;
     --gold:#c9a558; --gold-dim:#8a7438; --paper:#e8dcc4; --paper-dim:#a99e88;
     --blood:#7a2222; --hidden:#0a1622; --hidden-line:#1d3a55; --hidden-text:#5fb3d4; --hidden-glow:#3a8fb0;
-    --regr:#6b4a7a; --regr-line:#5a3d6a; --regr-text:#c79ad4;
+    --trav:#6b4a7a; --trav-line:#5a3d6a; --trav-text:#c79ad4;
     --shadow:rgba(0,0,0,.6);
   }
   *{margin:0;padding:0;box-sizing:border-box}
@@ -48,7 +46,7 @@
   .profile{display:flex;gap:11px;align-items:center}
   .avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);border:1.5px solid var(--gold-dim);background:radial-gradient(circle at 35% 30%,#3a4d63,#16202b)}
   .avatar.npc{background:radial-gradient(circle at 35% 30%,#4a3a2a,#1e160e);border-color:var(--gold-dim);width:36px;height:36px;font-size:15px}
-  .avatar.regr{background:radial-gradient(circle at 35% 30%,#4a2f5a,#1c1322);border-color:var(--regr-line);width:36px;height:36px;font-size:15px;color:var(--regr-text)}
+  .avatar.trav{background:radial-gradient(circle at 35% 30%,#4a2f5a,#1c1322);border-color:var(--trav-line);width:36px;height:36px;font-size:15px;color:var(--trav-text)}
   .profile .name{font-size:14px;font-weight:600;color:var(--paper)}.profile .tag{font-size:10.5px;color:var(--paper-dim);margin-top:2px}
 
   .quest-text{font-size:12.5px;line-height:1.7;color:var(--paper)}.quest-text .em{color:var(--gold);font-weight:500}
@@ -111,13 +109,13 @@
 
   .msg{max-width:76%;display:flex;flex-direction:column;gap:4px}
   .msg.me{align-self:flex-end;align-items:flex-end}
-  .msg.npc,.msg.regr{align-self:flex-start;align-items:flex-start}
+  .msg.npc,.msg.trav{align-self:flex-start;align-items:flex-start}
   .msg .who{font-size:10px;letter-spacing:1px;color:var(--paper-dim);padding:0 4px;display:flex;align-items:center;gap:5px}
   .msg .who .role-dot{width:6px;height:6px;border-radius:50%}
   .bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.7}
   .msg.me .bubble{background:linear-gradient(135deg,#2a3340,#1d2530);border:1px solid #34414f;border-bottom-right-radius:3px;color:#d6e2ee}
   .msg.npc .bubble{background:linear-gradient(135deg,#2d2418,#211a10);border:1px solid #3d3120;border-bottom-left-radius:3px;color:#e3d4b6}
-  .msg.regr .bubble{background:linear-gradient(135deg,#2c2138,#1a1322);border:1px solid #4a3d5a;border-bottom-left-radius:3px;color:#dcc8e8}
+  .msg.trav .bubble{background:linear-gradient(135deg,#2c2138,#1a1322);border:1px solid #4a3d5a;border-bottom-left-radius:3px;color:#dcc8e8}
   .bubble-wrap{position:relative;display:flex;align-items:flex-start;gap:4px}
   .bubble-wrap .pin-btn{flex-shrink:0;font-size:10px;padding:3px 5px;border-radius:3px;cursor:pointer;opacity:0;transition:.2s;color:var(--paper-dim);border:1px solid transparent;background:transparent;align-self:flex-start;margin-top:2px}
   .bubble-wrap:hover .pin-btn{opacity:1}
@@ -204,6 +202,20 @@
   .door .dd{font-size:11px;color:var(--paper-dim);line-height:1.5}
   .door .dlock{font-size:10px;color:var(--paper-dim);margin-top:6px;letter-spacing:1px}
   .fade-in{animation:fadeIn .8s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+/* ---- 新手引导 ---- */
+.tut-mask{position:fixed;inset:0;background:rgba(5,4,3,.78);z-index:4000;transition:opacity .35s}
+.tut-spot{position:relative;z-index:4001 !important;box-shadow:0 0 0 4px var(--gold),0 0 32px rgba(201,165,88,.5);border-radius:6px;animation:tutPulse 2.2s infinite;pointer-events:none}
+@keyframes tutPulse{0%,100%{box-shadow:0 0 0 4px var(--gold),0 0 26px rgba(201,165,88,.4)}50%{box-shadow:0 0 0 7px var(--gold),0 0 44px rgba(201,165,88,.7)}}
+.tut-card{position:fixed;z-index:4002;background:linear-gradient(180deg,#1f1a13,var(--panel));border:1px solid var(--gold);border-radius:8px;padding:18px 22px;max-width:350px;box-shadow:0 24px 70px rgba(0,0,0,.75);pointer-events:auto}
+.tut-card .tut-num{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:2.5px;color:var(--gold-dim);text-transform:uppercase;margin-bottom:4px}
+.tut-card h4{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold);margin-bottom:6px;font-weight:600}
+.tut-card p{font-size:12.5px;line-height:1.75;color:var(--paper);margin-bottom:14px}
+.tut-card .tut-row{display:flex;justify-content:space-between;align-items:center}
+.tut-card .tut-dots{display:flex;gap:5px}.tut-card .tut-dots span{width:6px;height:6px;border-radius:50%;background:var(--line);transition:.2s}.tut-card .tut-dots span.on{background:var(--gold)}
+.tut-card .tut-act{display:flex;gap:8px;align-items:center}
+.tut-card .tut-skip{background:transparent;color:var(--paper-dim);border:none;font-family:'Noto Serif SC',serif;font-size:10px;cursor:pointer;text-decoration:underline;opacity:.55;padding:0}
+.tut-card .tut-prev{background:transparent;color:var(--paper-dim);border:1px solid var(--line);font-family:'Noto Serif SC',serif;font-size:11px;padding:5px 12px;border-radius:4px;cursor:pointer}
+.tut-card .tut-next{background:var(--gold);color:var(--ink);border:none;font-family:'Noto Serif SC',serif;font-size:11px;padding:5px 16px;border-radius:4px;cursor:pointer;font-weight:600}
 </style>
 </head>
 <body>
@@ -218,7 +230,7 @@
       <div class="ov-q">在被卷走之前，你最后报出了自己的名字——</div>
       <input type="text" id="heroName" placeholder="你的名字……" maxlength="12" value="霍尔特">
       <button class="ov-btn" id="proNext">推开那扇门 →</button>
-      <div class="ov-note">这是一个由 AI 实时驱动的无限流 demo。你将独自闯入副本。副本里所有活着的角色——土著与其他轮回者——都由 AI 扮演，它们只知道自己该知道的，不会作弊。</div>
+      <div class="ov-note">这是一个由 AI 实时驱动的无限流 demo。你将独自闯入副本。副本里所有活着的角色——土著与其他旅人——都由 AI 扮演，它们只知道自己该知道的，不会作弊。</div>
     </div>
   </div>
 </div>
@@ -257,9 +269,9 @@
 <div class="stage">
   <!-- LEFT -->
   <div class="col">
-    <div class="col-label">我 · 孤身的轮回者</div>
+    <div class="col-label">我 · 孤身的旅人</div>
     <div class="panel">
-      <div class="panel-head"><h3>You</h3><span class="cn">轮回者</span></div>
+      <div class="panel-head"><h3>You</h3><span class="cn">旅人</span></div>
       <div class="panel-body"><div class="profile"><div class="avatar" id="heroAvatar">霍</div><div><div class="name" id="heroNameDisp">霍尔特</div><div class="tag">独自闯入副本 · 异乡人</div></div></div></div>
     </div>
     <div class="panel">
@@ -286,7 +298,7 @@
         <button class="send-btn" id="sendBtn" onclick="send()">发送 →</button>
       </div>
       <div class="dual-hint"><span>移动：点击左侧出口按钮，或在公开频道描述你要去哪儿。</span></div>
-      <div class="dual-hint"><span>双轨并行 ·</span><span class="pill has" id="stagedPill" style="display:none"><span style="color:var(--hidden-glow)">◢</span>已暂存隐藏动作 <span class="x" onclick="clearStaged()">✕</span></span><span id="dualTip">隐藏频道里做的事，土著看不见——但别的轮回者，未必看不见</span></div>
+      <div class="dual-hint"><span>双轨并行 ·</span><span class="pill has" id="stagedPill" style="display:none"><span style="color:var(--hidden-glow)">◢</span>已暂存隐藏动作 <span class="x" onclick="clearStaged()">✕</span></span><span id="dualTip">隐藏频道里做的事，土著看不见——但别的旅人，未必看不见</span></div>
     </div>
   </div>
 
@@ -313,6 +325,8 @@
   </div>
 </div>
 
+<div class="tut-mask" id="tutMask" style="display:none"></div>
+<div class="tut-card" id="tutCard" style="display:none"></div>
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalBox"></div></div>
 <div class="hint-toast" id="toast"></div>
 
@@ -356,6 +370,7 @@ const GAME={hero:"霍尔特",round:1,timeMin:8*60+30,history:[],cluesFound:[],
 
 function transcript(n=10){return GAME.history.slice(-n).map(h=>`[${h.who}] ${h.text}`).join("\n")||"（刚进入副本）";}
 function presentNPCs(){return Object.entries(GAME.npcRooms).filter(([,r])=>r===GAME.currentRoom).map(([k])=>k);}
+function npcName(key){const n=DUNGEON.npcs[key];return n?n.key:key;}
 function resolveAccused(name){
   const keys=Object.keys(DUNGEON.npcs||{});
   // 完全匹配
@@ -395,12 +410,12 @@ async function npcResponse(npcKey,situation){
   const roomInfo=npcRoom===GAME.currentRoom
     ? `你此刻就在${GAME.currentRoom}，和主角在同一个房间里。`
     : `你此刻在${npcRoom}，主角在${GAME.currentRoom}——你们不在同一个房间。若主角隔着房间对你喊话，你按物理逻辑回应（听不清、隔着墙等）；除非主角来到了你所在的房间。`;
-  const commonSense = n.regressor
-    ? `【你当然知道的常识】这里是一座被暴风雪困住的维多利亚式庄园(暴风雪山庄)，昨夜庄园主伯爵死在卧房，所有人被大雪困住、无法离开。你作为轮回者，也清楚你们都是被卷进这个"副本/世界"的异乡人。这些常识性的事，被问到时要正常回答，不要装不知道。`
+  const commonSense = n.traveler
+    ? `【你当然知道的常识】这里是一座被暴风雪困住的维多利亚式庄园(暴风雪山庄)，昨夜庄园主伯爵死在卧房，所有人被大雪困住、无法离开。你作为旅人，也清楚你们都是被卷进这个"副本/世界"的异乡人。这些常识性的事，被问到时要正常回答，不要装不知道。`
     : `【你当然知道的常识】你是这座庄园里的人。这里是伯爵的山庄(在偏远的北境，被暴风雪封住了路)，昨夜老爷(伯爵)死在卧房，警察来不了，大家都被困住。这些everyday的常识，被问到"这是什么地方""死了谁""怎么回事"时，要按你的身份正常、自然地回答，绝不能答"说不清楚/不知道"——你在这儿住/做工，怎么会不知道这是哪儿。只有涉及命案真相的秘密(谁是凶手、作案手法等)才需要按下面的处境隐瞒。`;
-  if(n.regressor){
+  if(n.traveler){
     const t=GAME.trust[npcKey]||0;
-    role=`你在无限流副本里扮演"${n.key}"——和主角一样的轮回者(异乡人)。绝不出戏，不提AI/系统/剧本。
+    role=`你在无限流副本里扮演"${n.key}"——和主角一样的旅人(异乡人)。绝不出戏，不提AI/系统/剧本。
 【你的位置】${roomInfo}
 【人设】${n.persona}
 ${commonSense}
@@ -423,7 +438,7 @@ ${commonSense}
   }
   const sys=`${role}\n\n【当前场景】${DUNGEON.scene}\n【最近对话】\n${transcript(8)}\n\n只输出你此刻说的话/动作(第三人称动作可用括号)，自然简短符合人设，80字内。不要解释或JSON。`;
   try{return await callClaude(sys,`刚刚发生：${situation}\n请以 ${n.key} 的身份回应。`,300);}
-  catch(e){return n.guilty?"管家恭敬地欠身：「先生，老奴实在不清楚。」":n.regressor?"对方意味深长地看了你一眼，没有立刻回答。":"对方迟疑了一下，没怎么说话。";}
+  catch(e){return n.guilty?"管家恭敬地欠身：「先生，老奴实在不清楚。」":n.traveler?"对方意味深长地看了你一眼，没有立刻回答。":"对方迟疑了一下，没怎么说话。";}
 }
 
 /* ===== MODULE 3: PUBLIC NARRATION ===== */
@@ -451,21 +466,40 @@ function tickNPCMovement(){
   if(GAME.round>=3&&GAME.round%3===0){
     for(const [npc,room] of Object.entries(GAME.npcRooms)){
       if(npc===GAME.hero)continue;
+      if(npc===GAME.talkTo)continue; // 不移动玩家正在对话的对象
       const nd=DUNGEON.npcs[npc];if(!nd)continue;
-      const moveChance=nd.regressor?0.45:(nd.guilty?0.35:0.2);
+      const moveChance=nd.traveler?0.45:(nd.guilty?0.35:0.2);
       if(Math.random()<moveChance){
         const exits=ROOMS[room]?.exits||[];
         if(!exits.length)continue;
         const dest=exits[Math.floor(Math.random()*exits.length)];
+        const wasHere=room===GAME.currentRoom;
+        const arrivedHere=dest===GAME.currentRoom;
         GAME.npcRooms[npc]=dest;
-        const isPresent=dest===GAME.currentRoom;
-        const enterPhrase=isPresent?"走了进来":"";
-        if(nd.regressor){
-          const phrases=[`${npc}从${room}起身，朝${dest}方向去了${enterPhrase}`,`${npc}的身影在${room}门口一闪，往${dest}方向移动${enterPhrase}`];
-          moves.push(phrases[Math.floor(Math.random()*phrases.length)]);
+        const dn=npcName(npc);
+        // 记录移动
+        if(nd.traveler){
+          moves.push(`${dn}从${room}起身，朝${dest}方向去了${arrivedHere?'，走了进来':''}`);
         }else{
-          const phrases=[`${npc}离开了${room}，往${dest}去了${enterPhrase}`,`走廊方向传来脚步声——${npc}从${room}走向了${dest}${enterPhrase}`];
-          moves.push(phrases[Math.floor(Math.random()*phrases.length)]);
+          moves.push(`${dn}离开了${room}，往${dest}去了${arrivedHere?'，走了进来':''}`);
+        }
+        // 离场痕迹：NPC 从当前房间离开，立即在对话流中显示
+        if(wasHere&&!arrivedHere){
+          const leaveMsgs=nd.traveler
+            ?[`${dn}向众人点了点头，转身离开了${room}。`,`${dn}似乎想起了什么，匆匆走出了${room}。`]
+            :nd.guilty
+            ?[`${dn}微微欠身，安静地退出了${room}。`,`${dn}沉默地离开了${room}，脚步声渐渐远去。`]
+            :[`${dn}走了出去。`,`${dn}离开了${room}。`];
+          addAmbient(leaveMsgs[Math.floor(Math.random()*leaveMsgs.length)]);
+        }
+        // 入场痕迹：NPC 进入当前房间
+        if(arrivedHere&&!wasHere){
+          const arriveMsgs=nd.traveler
+            ?[`${dn}走了进来，环顾四周。`,`${dn}推门而入，朝在场的人点头致意。`]
+            :nd.guilty
+            ?[`${dn}轻轻推开门，安静地走了进来。`,`${dn}进来了，神色如常。`]
+            :[`${dn}走了进来。`,`门口响动——${dn}进来了。`];
+          setTimeout(()=>{addAmbient(arriveMsgs[Math.floor(Math.random()*arriveMsgs.length)]);scrollBottom();},300);
         }
       }
     }
@@ -485,6 +519,14 @@ function moveTo(roomName){
   let arrivalText='';
   if(arrivals.length){arrivalText=`${arrivals.join("、")}正在这里。`;}
   addWorld(`你穿过门廊，走进了<b>${roomName}</b>。${ROOMS[roomName].desc.slice(0,60)}……${arrivalText}`);
+  // NPCs left behind in old room may react
+  if(oldRoom!==roomName){
+    const leftBehind=Object.entries(GAME.npcRooms).filter(([k,r])=>r===oldRoom&&k!==GAME.hero);
+    if(leftBehind.length>0){
+      const names=leftBehind.map(([k])=>npcName(k));
+      setTimeout(()=>addAmbient(`${names.slice(0,2).join('、')}${leftBehind.length>2?'等人':''}留在了${oldRoom}——你的脚步声渐远。`),500);
+    }
+  }
   // if moving away from someone you were talking to, reset
   if(GAME.talkTo!=='全场'&&GAME.npcRooms[GAME.talkTo]!==roomName){
     GAME.talkTo='全场';document.getElementById('talkName').textContent='全场';
@@ -500,9 +542,9 @@ function moveTo(roomName){
     setTimeout(async()=>{
       const greeter=newArrivals[Math.floor(Math.random()*newArrivals.length)];
       const n=DUNGEON.npcs[greeter];if(!n||GAME.busy)return;
-      const th=addThinking(`${greeter} 注意到了你的到来…`);
+      const th=addThinking(`${npcName(greeter)} 注意到了你的到来…`);
       const msg=await npcResponse(greeter,`${GAME.hero}刚走进了${roomName}。你在场，看见他/她进来。按你的人设反应。`);
-      th.remove();addBubble(n.cls,greeter,n.color,msg);
+      th.remove();addBubble(n.cls,npcName(greeter),n.color,msg);
       GAME.history.push({who:greeter,text:msg});scrollBottom();
     },600);
   }
@@ -571,7 +613,7 @@ async function send(){
           box.innerHTML=`<div class="modal-head"><h2>❌ 婉玉崩溃 · 副本失败</h2><button class="close" onclick="closeModal();returnToHostel()">✕</button></div>
             <div class="modal-body">
               <div class="reveal-card"><div class="rc-title">坏结局</div><p style="margin:0;font-size:13px;line-height:1.7">${esc(wc.angerHint||'不完整的真相比没有真相更残忍。')}</p></div>
-              <p style="color:var(--paper-dim);font-size:11px">婉玉要的不是碎片，是完整的答案——而且必须由顾长卿亲口说出来。下次，先劝说那个隐藏在众人之中的人。</p>
+              <p style="color:var(--paper-dim);font-size:11px">婉玉要的不是碎片，是完整的答案——而且必须由那个人亲口说出来。下次，先劝说那个隐藏在众人之中的人。</p>
               <button onclick="closeModal();returnToHostel()" style="width:100%;padding:12px;background:var(--blood);color:var(--paper);border:none;border-radius:5px;font-family:'Cormorant Garamond';font-size:16px;font-weight:600;cursor:pointer">回到异世旅社 →</button></div>`;
           document.getElementById('modalBg').classList.add('open');
         },1000);
@@ -639,9 +681,10 @@ async function send(){
   async function speak(key, situation){
     if(GAME.npcRooms[key]!==GAME.currentRoom)return null; // skip if not in room
     const c=DUNGEON.npcs[key];
-    const th=addThinking(`${key} 正在回应…`);
+    const displayName=npcName(key);
+    const th=addThinking(`${displayName} 正在回应…`);
     const msg=await npcResponse(key, situation); th.remove();
-    addBubble(c.cls,key,c.color,msg);
+    addBubble(c.cls,displayName,c.color,msg);
     GAME.history.push({who:key,text:msg}); publicActions.push(`${key}：${msg}`);
     adjustTrust(key,text); scrollBottom();
     return msg;
@@ -654,20 +697,24 @@ async function send(){
       if(Math.random()<0.4){
         const others=presentNPCs().filter(k=>k!==target);
         if(others.length>0){
-          const weighted=others.flatMap(k=>DUNGEON.npcs[k].regressor?[k,k]:[k]);
+          const weighted=others.flatMap(k=>DUNGEON.npcs[k].traveler?[k,k]:[k]);
           const ik=weighted[Math.floor(Math.random()*weighted.length)];
-          await speak(ik, `刚刚 ${target} 说了：「${msg}」。你在旁听着，忍不住插一句。`);
+          const reply=await speak(ik, `刚刚 ${target} 说了：「${msg}」。你在旁听着，忍不住插一句。`);
+          // 如果插话的是旅人，NPC target 有概率回应旅人
+          if(reply&&DUNGEON.npcs[ik]?.traveler&&!DUNGEON.npcs[target]?.traveler&&Math.random()<0.5){
+            await speak(target, `刚才 ${ik} 插了一句话：「${reply}」。按你的人设回应TA。`);
+          }
         }
       }
     }
   } else {
     // addressed to 全场 → only present characters answer
     const present=presentNPCs();
-    const regressors=present.filter(k=>DUNGEON.npcs[k].regressor);
-    const natives=present.filter(k=>!DUNGEON.npcs[k].regressor);
+    const travelers=present.filter(k=>DUNGEON.npcs[k].traveler);
+    const natives=present.filter(k=>!DUNGEON.npcs[k].traveler);
     const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
     const responders=[];
-    if(regressors.length) responders.push(shuffle(regressors)[0]);
+    if(travelers.length) responders.push(shuffle(travelers)[0]);
     shuffle(natives).slice(0, 1+Math.floor(Math.random()*2)).forEach(k=>responders.push(k));
     const finalSet=[...new Set(responders)].slice(0,3);
     if(finalSet.length===0){
@@ -676,6 +723,13 @@ async function send(){
     }
     for(const k of finalSet){
       await speak(k, text || '主角打量着四周，似乎想弄清楚这里的状况');
+    }
+    // 如果旅人说了话但没有土著回应，给未发言的土著一个回应的机会
+    const spokeKeys=finalSet;
+    const unspokenNatives=natives.filter(k=>!spokeKeys.includes(k));
+    if(spokeKeys.some(k=>DUNGEON.npcs[k]?.traveler)&&unspokenNatives.length>0&&Math.random()<0.55){
+      const native=shuffle(unspokenNatives)[0];
+      await speak(native,`刚才在场有人说了话。你听到了，按你的人设和性格作出反应——可以赞同、反驳、补充，或装作没听见。`);
     }
   }
 
@@ -701,14 +755,14 @@ async function send(){
 }
 function setBusy(b){GAME.busy=b;sendBtn.disabled=b;}
 function adjustTrust(key,text){
-  if(!DUNGEON.npcs[key]||!DUNGEON.npcs[key].regressor||!text)return;
+  if(!DUNGEON.npcs[key]||!DUNGEON.npcs[key].traveler||!text)return;
   if(/信|帮|一起|合作|谢|结盟|联手/.test(text))GAME.trust[key]=Math.min(3,(GAME.trust[key]||0)+1);
   if(/不信|防|滚|可疑|别|拒|骗/.test(text))GAME.trust[key]=Math.max(-3,(GAME.trust[key]||0)-1);
 }
 
 /* ---------- DOM builders ---------- */
 function addBubble(side,who,dot,text){const m=document.createElement('div');m.className='msg '+side;
-  const isNPC=side==='npc'||side==='regr';
+  const isNPC=side==='npc'||side==='trav';
   m.innerHTML=`<span class="who"><span class="role-dot" style="background:${dot}"></span>${esc(who)}</span>
     <div class="bubble-wrap"><div class="bubble">${esc(text)}</div>${isNPC?`<button class="pin-btn" data-ctext="${b64(text)}" data-cwho="${b64(who)}" onclick="saveAsClue(this)" title="记入线索">📌</button>`:''}</div>`;flow.appendChild(m);}
 function b64(s){return btoa(unescape(encodeURIComponent(s)));}
@@ -778,9 +832,9 @@ function renderNPCs(){
   // present NPCs
   if(present.length){
     html+=`<div class="npc-sec">◆ 在此地 · ${GAME.currentRoom}</div>`;
-    const presentNatives=present.filter(k=>!DUNGEON.npcs[k].regressor);
-    const presentRegrs=present.filter(k=>DUNGEON.npcs[k].regressor);
-    for(const k of [...presentNatives,...presentRegrs]){
+    const presentNatives=present.filter(k=>!DUNGEON.npcs[k].traveler);
+    const presentTravs=present.filter(k=>DUNGEON.npcs[k].traveler);
+    for(const k of [...presentNatives,...presentTravs]){
       const n=DUNGEON.npcs[k];
       html+=`<div class="npc-item ${GAME.talkTo===k?'active':''}" data-key="${k}" onclick="setTalkTo('${k}')">
         <div class="avatar ${n.cls}">${n.short}</div><div><div class="name">${n.key}</div><div class="tag">${n.tag}</div></div><span class="talk-flag">▸ 当前</span></div>`;
@@ -833,25 +887,25 @@ function openModal(k){const m=getModals()[k];const box=document.getElementById('
 function closeModal(){document.getElementById('modalBg').classList.remove('open');}
 
 /* ---------- 通关结算 ---------- */
-function regressorNPCs(){return Object.keys(GAME.trust).filter(k=>DUNGEON.npcs[k]?.regressor);}
-function regressorFateFields(){
-  const rs=regressorNPCs();if(!rs.length)return'';
+function travelerNPCs(){return Object.keys(GAME.trust).filter(k=>DUNGEON.npcs[k]?.traveler);}
+function travelerFateFields(){
+  const rs=travelerNPCs();if(!rs.length)return'';
   return ','+rs.map(k=>{
     const short=DUNGEON.npcs[k]?.short||k[0];
     return `"${short}Fate":"${k}最后的选择,40字内"`;
   }).join(',');
 }
-function regressorFateHTML(r){
-  const rs=regressorNPCs();if(!rs.length)return'';
+function travelerFateHTML(r){
+  const rs=travelerNPCs();if(!rs.length)return'';
   const lines=rs.map(k=>{
     const short=DUNGEON.npcs[k]?.short||k[0];
     const fate=r[short+'Fate']||'';
-    return `<b style="color:var(--regr-text)">${esc(k)}：</b>${esc(fate)}`;
+    return `<b style="color:var(--trav-text)">${esc(k)}：</b>${esc(fate)}`;
   }).join('<br>');
-  return `<div class="reveal-card" style="border-color:var(--regr-line);background:rgba(107,74,122,.1)"><div class="rc-title" style="color:var(--regr-text)">同行者的去向</div><p style="margin:0;font-size:13px;line-height:1.7">${lines}</p></div>`;
+  return `<div class="reveal-card" style="border-color:var(--trav-line);background:rgba(107,74,122,.1)"><div class="rc-title" style="color:var(--trav-text)">同行者的去向</div><p style="margin:0;font-size:13px;line-height:1.7">${lines}</p></div>`;
 }
-function regressorTrustSummary(){
-  const rs=Object.entries(GAME.trust).filter(([k])=>DUNGEON.npcs[k]?.regressor);
+function travelerTrustSummary(){
+  const rs=Object.entries(GAME.trust).filter(([k])=>DUNGEON.npcs[k]?.traveler);
   if(!rs.length)return'';
   return rs.map(([k,v])=>`对${k}的态度：${v}(负=防备,正=亲近)`).join('　');
 }
@@ -889,7 +943,7 @@ async function triggerSettle(accused){
         box.innerHTML=`<div class="modal-head"><h2>📜 真相已明</h2><button class="close" onclick="closeModal()">✕</button></div>
           <div class="modal-body">
             <p style="color:var(--gold);line-height:1.8">你已经掌握了足够的线索。现在需要做最后一步——</p>
-            <p style="color:var(--paper);line-height:1.8">在公开频道<b style="color:var(--gold)">劝说顾长卿（隐藏在众人之中）</b>向婉玉认错。让他跪下，让他开口，让他亲口说出五十年前的那句话。</p>
+            <p style="color:var(--paper);line-height:1.8">在公开频道<b style="color:var(--gold)">劝说隐藏在众人之中的那个人</b>向婉玉认错。让他跪下，让他开口，让他亲口说出五十年前的那句话。</p>
             <p style="color:var(--blood);font-size:11px">⚠ 绝对不要直接告诉婉玉真相——不完整的真相比没有真相更残忍。她会崩溃。</p>
             <button onclick="closeModal()" style="margin-top:12px;width:100%;padding:10px;background:var(--gold);color:var(--ink);border:none;border-radius:4px;font-family:'Noto Serif SC',serif;font-size:13px;cursor:pointer">去劝他</button>
           </div>`;
@@ -924,10 +978,10 @@ async function triggerSettle(accused){
     setTimeout(async()=>{
       const reactSys=`你是${accused}。此刻${GAME.hero}当众指认你是凶手。你当然不是（或者你没有暴露），你要做出符合人设的反应——委屈、愤怒、或冷静反驳，70字内。不要JSON。`;
       const react=await callClaude(reactSys,`${GAME.hero}指着你说："${accused}，你就是凶手！"请以${accused}的身份回应。`,300);
-      addBubble(DUNGEON.npcs[accused]?.cls||'npc',accused,DUNGEON.npcs[accused]?.color||'#bf9a5b',react||'「你……你凭什么这么说？！」');
+      addBubble(DUNGEON.npcs[accused]?.cls||'npc',npcName(accused),DUNGEON.npcs[accused]?.color||'#bf9a5b',react||'「你……你凭什么这么说？！」');
       GAME.history.push({who:accused,text:react});scrollBottom();
-      addWorld(`空气骤然凝固。${accused}的反应让所有人不约而同地沉默了——片刻后，大家意识到，真相还没被抓住。`);
-      toast(`指认失败 · ${accused}不是凶手。${(wc.failHint||"真正的那个人还在暗中。").replace("{remaining}",remaining)} 剩余${remaining}次`, true);
+      addWorld(`空气骤然凝固。${npcName(accused)}的反应让所有人不约而同地沉默了——片刻后，大家意识到，真相还没被抓住。`);
+      toast(`指认失败 · ${npcName(accused)}不是凶手。${(wc.failHint||"真正的那个人还在暗中。").replace("{remaining}",remaining)} 剩余${remaining}次`, true);
       renderNPCs();
     },400);
     return;
@@ -950,9 +1004,9 @@ async function triggerSettle(accused){
 
   const sys=`你是无限流副本的结算叙事者。揭晓结局。${condPrompt}
 【玩家发现的线索】${GAME.cluesFound.join("；")||"(几乎没查到)"}
-${regressorTrustSummary()}
+${travelerTrustSummary()}
 输出 JSON：
-{"verdict":"对玩家调查/行为的点评,50字内","truth":"结局真相,第三人称,100字内"${regressorFateFields()},"epilogue":"通关收尾,40字内"}`;
+{"verdict":"对玩家调查/行为的点评,50字内","truth":"结局真相,第三人称,100字内"${travelerFateFields()},"epilogue":"通关收尾,40字内"}`;
   let r;
   try{r=parseJSON(await callClaude(sys,"生成结算JSON。",800));}
   catch(e){r={verdict:"这段旅途结束了。",truth:DUNGEON.truth||"故事在此定格。",kFate:"K留下一个意味深长的背影。",weiFate:"薇的面纱后，看不清表情。",aqiFate:"那个少年嘴角掠过一丝弧度。",epilogue:"你回到了异世旅社的大堂，下一扇门已为你开启。"};}
@@ -960,7 +1014,7 @@ ${regressorTrustSummary()}
   box.querySelector('.modal-body').innerHTML=`
     ${wc.type==='accuse'?`<div class="reveal-card"><div class="rc-title">真凶</div><p style="margin:0;font-size:13px;line-height:1.7"><b style="color:var(--blood)">${esc(wc.target||'—')}</b></p></div>`:''}
     <div class="reveal-card"><div class="rc-title">结局</div><p style="margin:0;font-size:13px;line-height:1.7">${esc(r.truth)}</p></div>
-    ${regressorFateHTML(r)}
+    ${travelerFateHTML(r)}
     <div class="reveal-card" style="border-color:var(--gold-dim);background:rgba(201,165,88,.06)"><div class="rc-title" style="color:var(--gold)">引擎点评</div><p style="margin:0;font-size:13px;line-height:1.7">${esc(r.verdict)}</p></div>
     <p style="text-align:center;color:var(--paper-dim);margin-top:14px;font-style:italic">${esc(r.epilogue)}</p>
     <button onclick="returnToHostel()" style="margin-top:8px;width:100%;padding:12px;background:var(--gold);color:var(--ink);border:none;border-radius:5px;font-family:'Cormorant Garamond';font-size:16px;font-weight:600;cursor:pointer">回到异世旅社 →</button>`;
@@ -982,7 +1036,7 @@ function checkAutoSettleHint(){
     }
     if(kc===GAME.keyClueThreshold&&GAME.failCount===0){
       const hint=wc.type==='guide_confession'
-        ?'碎片拼成了完整的真相。点击右下角提交真相，然后劝说顾长卿（他就在众人之中）——让他跪下，让他开口。但绝对不要直接去告诉婉玉。'
+        ?'碎片拼成了完整的真相。点击右下角提交真相，然后劝说他——让那个藏在众人之中的人跪下、开口。但绝对不要直接去告诉婉玉。'
         :'空气里的线索渐渐拼成了一幅完整的画面。你知道，是时候做一个决定了——在公开频道指认真凶，或点击右下角按钮。';
       setTimeout(()=>addAmbient(hint),600);
     }
@@ -1082,28 +1136,138 @@ function startDungeon(){
   if(id==='lantern_ashes'){
     addWorld('浓雾将整座顾宅裹在一片苍白的沉寂里。青石地上积着五十年的灰，老槐树半死不活地站在前院。远处——也许是东厢房——有女人在哭，压着嗓子，像是离得很远，又像是就在耳边。门匾上的"顾宅"二字已经腐朽，但还能辨认。院子里还站着几个和你一样被卷进来的人，各怀心思。');
     addBubble('npc','云游僧人','#bf9a5b','「贫僧云游至此。此宅怨气极重——那位叫婉玉的女子，已经在这里等了五十年了。若诸位愿意协助贫僧超度亡魂，贫僧感激不尽。」');
-    addBubble('regr','说书人·老周','#c79ad4','白发老人摇了摇破折扇，慢悠悠地说：「顾宅……五十年前的事，老朽倒是听过几段。不急，不急，先看看。」');
-    addBubble('regr','报社记者·沈小姐','#e8a87c','「终于有人来了！」一个齐耳短发的女子拿着笔记本凑过来，「我是报社的——你们谁先到？有没有看见一个穿红衣服的女人？那边哭声听到了吗？」');
-    addBubble('regr','退伍军官·郑先生','#b0a4c8','壮年男人抱着胳膊站在槐树下，哼了一声：「鬼魂？我看是风。先把宅子搜一遍再说。」');
+    addBubble('trav','说书人·老周','#c79ad4','白发老人摇了摇破折扇，慢悠悠地说：「顾宅……五十年前的事，老朽倒是听过几段。不急，不急，先看看。」');
+    addBubble('trav','报社记者·沈小姐','#e8a87c','「终于有人来了！」一个齐耳短发的女子拿着笔记本凑过来，「我是报社的——你们谁先到？有没有看见一个穿红衣服的女人？那边哭声听到了吗？」');
+    addBubble('trav','退伍军官·郑先生','#b0a4c8','壮年男人抱着胳膊站在槐树下，哼了一声：「鬼魂？我看是风。先把宅子搜一遍再说。」');
     GAME.history.push({who:'云游僧人',text:'此宅怨气极重——那位叫婉玉的女子，已经在这里等了五十年了。'});
     GAME.history.push({who:'说书人·老周',text:'顾宅五十年前的事，老朽倒是听过几段。不急，先看看。'});
     GAME.history.push({who:'报社记者·沈小姐',text:'我是报社的——你们谁先到？有没有看见一个穿红衣服的女人？'});
     GAME.history.push({who:'退伍军官·郑先生',text:'鬼魂？我看是风。先把宅子搜一遍再说。'});
     setTimeout(()=>{addAmbient('走廊方向传来老管家的低语：「井里有人……井里有人睡着了……」');},2000);
     toast('三个同行的异乡人：说书人老周知道掌故，记者沈小姐好奇心过盛，军官郑先生铁石心肠。信谁、用谁、防谁——你自己判断。');
+    setTimeout(() => startTutorial(), 1200);
   }else{
     addWorld('暴雪把整座山庄按进一片苍白的寂静里。书房的壁炉烧着橡木，火光在墙上的猎鹿油画上缓慢爬动，把胡桃木书架的影子拉得很长。爱德华兹管家端着茶盘进来，将一杯红茶轻轻搁在你手边。');
     addBubble('npc','爱德华兹管家','#bf9a5b','「这样的天气，先生还是先暖暖身子吧。老爷他……唉，向来心善。不过老奴还有事务要处理——先生若有需要，请摇铃。」');
-    addBubble('regr','陌生旅人·K','#c79ad4','「又一个客人。这庄子里的死人，可不止表面那一个。想活着出去，最好别太信任何人——包括我。」');
-    addBubble('regr','戴面纱的薇','#c79ad4','「别听他的。你看着就是聪明人——不如我们搭个伙？那个女仆，现在多半在厨房，我看她准知道些什么。」');
-    addBubble('regr','少年·阿七','#c79ad4','「两、两位别吵……这位大哥，你也是刚来的吗？我什么都不懂，好害怕……」');
+    addBubble('trav','陌生旅人·K','#c79ad4','「又一个客人。这庄子里的死人，可不止表面那一个。想活着出去，最好别太信任何人——包括我。」');
+    addBubble('trav','戴面纱的薇','#c79ad4','「别听他的。你看着就是聪明人——不如我们搭个伙？那个女仆，现在多半在厨房，我看她准知道些什么。」');
+    addBubble('trav','少年·阿七','#c79ad4','「两、两位别吵……这位大哥，你也是刚来的吗？我什么都不懂，好害怕……」');
     GAME.history.push({who:'爱德华兹管家',text:'这样的天气，先生还是先暖暖身子吧。不过老奴还有事务要处理。'});
     GAME.history.push({who:'陌生旅人·K',text:'想活着出去，别太信任何人，包括我。'});
     GAME.history.push({who:'戴面纱的薇',text:'不如我们搭个伙？女仆现在多半在厨房，我看她准是知道些什么。'});
     GAME.history.push({who:'少年·阿七',text:'我什么都不懂，好害怕……能不能别丢下我一个人呀？'});
     toast('左侧出口可移动至其他房间。不同房间有不同的人、不同的线索。');
+    setTimeout(() => startTutorial(), 1200);
   }
   setTimeout(()=>ta.focus(),300);
+}
+
+/* ===== 新手引导 ===== */
+const TUT_STEPS = [
+  {el:'#heroNameDisp', pos:'right', title:'你的角色', text:'你是被卷入异世界的"旅人"，需要通关副本才能前往下一个旅程。'},
+  {el:'#questText', pos:'right', title:'通关目标', text:'每个副本都有一个必须完成的目标。仔细阅读——它告诉你在这个世界要朝什么方向努力。'},
+  {el:'#locationPanel', pos:'right', title:'当前位置 & 移动', text:'显示你所在的房间和可前往的出口。点击出口即可移动——不同房间有不同的人和线索。场景中的金色文字可直接点击搜查。'},
+  {el:'#flow', pos:'left', title:'故事在此展开', text:'你的行动、NPC 的回应、世界叙事都在这里滚动呈现。NPC 对话气泡旁的 📌 可以把关键信息记入线索。'},
+  {el:'#field', pos:'top', title:'输入行动', text:'用自然语言描述你说的话、做的事。按 Ctrl+Enter 快速发送。描述你要去哪儿（如"去书房"），系统会自动识别并移动。'},
+  {el:'.channel-tabs', pos:'bottom', title:'公开 / 隐藏 双频道', text:'公开频道：所有人可见——说话、问话都在这里。隐藏频道：只有你知道——用于暗中翻抽屉、偷看信件等，但可能留下"渗透痕迹"。'},
+  {el:'#npcList', pos:'left', title:'在场角色', text:'高亮的角色在你当前房间——点击即可选中并对其说话。灰色的不在场，需要移动到对应房间才能对话。'},
+  {el:'#sceneDesc', pos:'left', title:'场景搜查', text:'场景描述中如果有金色高亮文字，点击即可暗中搜查——会自动切到隐藏频道，直接发送即可。'},
+  {el:'#clueList', pos:'left', title:'线索汇总', text:'你发现的所有线索汇总在这里。来源包括 NPC 对话中的 📌 记录、暗中搜查的结果。线索足够才能通关。'},
+  {el:'#settleBtn', pos:'top', title:'尝试通关', text:''} // text set dynamically
+];
+let tutStep = 0;
+
+function startTutorial(){
+  const wc = DUNGEON.winCondition || {};
+  const lastText = wc.type === 'guide_confession'
+    ? '线索够了之后点击这里。你需要劝说隐藏在众人之中的人向执念者坦白——而不只是指认凶手。'
+    : '线索够了之后点击这里指认真凶。你也可以直接在公开频道说出你的指认。失败会消耗机会。';
+  TUT_STEPS[TUT_STEPS.length-1].text = lastText;
+  tutStep = 0;
+  document.getElementById('tutMask').style.display = 'block';
+  document.getElementById('tutCard').style.display = 'block';
+  showTutStep(0);
+}
+
+function showTutStep(n){
+  tutStep = n;
+  const step = TUT_STEPS[n];
+  const target = document.querySelector(step.el);
+  const card = document.getElementById('tutCard');
+  const mask = document.getElementById('tutMask');
+
+  // Remove previous spotlight
+  document.querySelectorAll('.tut-spot').forEach(el => el.classList.remove('tut-spot'));
+
+  if (!target) {
+    // Element not found — skip to next step
+    if (n < TUT_STEPS.length - 1) { showTutStep(n + 1); }
+    else { endTutorial(); }
+    return;
+  }
+
+  // Spotlight the target
+  target.classList.add('tut-spot');
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Build card content
+  const dots = TUT_STEPS.map((_, i) => `<span class="${i === n ? 'on' : ''}"></span>`).join('');
+  const prevBtn = n > 0 ? `<button class="tut-prev" onclick="showTutStep(${n - 1})">← 上一步</button>` : '<span></span>';
+  const nextLabel = n === TUT_STEPS.length - 1 ? '开始游戏 →' : '下一步 →';
+  const nextAction = n === TUT_STEPS.length - 1 ? 'endTutorial()' : `showTutStep(${n + 1})`;
+  card.innerHTML = `
+    <div class="tut-num">第 ${n + 1} / ${TUT_STEPS.length} 步</div>
+    <h4>${step.title}</h4>
+    <p>${step.text}</p>
+    <div class="tut-row">
+      <div class="tut-dots">${dots}</div>
+      <div class="tut-act">
+        <button class="tut-skip" onclick="endTutorial()">跳过</button>
+        ${prevBtn}
+        <button class="tut-next" onclick="${nextAction}">${nextLabel}</button>
+      </div>
+    </div>`;
+
+  // Position the card relative to target
+  setTimeout(() => {
+    const tr = target.getBoundingClientRect();
+    const cr = card.getBoundingClientRect();
+    const pad = 14;
+    let left, top;
+    switch (step.pos) {
+      case 'right':
+        left = tr.right + pad;
+        top = tr.top + (tr.height - cr.height) / 2;
+        break;
+      case 'left':
+        left = tr.left - cr.width - pad;
+        top = tr.top + (tr.height - cr.height) / 2;
+        break;
+      case 'bottom':
+        left = tr.left + (tr.width - cr.width) / 2;
+        top = tr.bottom + pad;
+        break;
+      case 'top':
+        left = tr.left + (tr.width - cr.width) / 2;
+        top = tr.top - cr.height - pad;
+        break;
+      default:
+        left = tr.right + pad;
+        top = tr.top;
+    }
+    // Clamp to viewport
+    left = Math.max(10, Math.min(left, window.innerWidth - cr.width - 10));
+    top = Math.max(10, Math.min(top, window.innerHeight - cr.height - 10));
+    card.style.left = left + 'px';
+    card.style.top = top + 'px';
+  }, 80);
+}
+
+function endTutorial(){
+  document.getElementById('tutMask').style.display = 'none';
+  document.getElementById('tutCard').style.display = 'none';
+  document.querySelectorAll('.tut-spot').forEach(el => el.classList.remove('tut-spot'));
+  document.getElementById('ta').focus();
 }
 
 function returnToHostel(){
